@@ -3,6 +3,7 @@ SPAN: SPectral ANalysis software V4.7
 Daniele Gasparri, February 2024
 
 ****Purpose****
+
 SPAN is a Python 3.X graphical interface program designed to perform operations and analyses on astronomical wavelength calibrated 1d spectra. The program accepts ASCII and fits binary tables.
 SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
 
@@ -12,6 +13,7 @@ The software DOES NOT accept ASCII spectra file with fortran scientific notation
 Currently, SPAN reads only the wavelength and the flux, discarding the (potential) column with uncertainties.
 
 ****What do you need to run SPAN****
+
 - In order to run the source code, you need Python 3.X and the following libraries (some of them are installed by default, others will require: pip install <library>):
     1) Pysimplegui (version >= 4.55. Please, check for updates.)
     2) Astropy
