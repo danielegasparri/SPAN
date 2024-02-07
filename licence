@@ -1,0 +1,22 @@
+SPectral ANalysis software (SPAN).
+Written by Daniele Gasparri#
+
+
+"""
+    Copyright (C) 2018-2024, Daniele Gasparri
+
+    E-mail: daniele.gasparri@gmail.com
+
+    SPAN is a GUI interface that allow to modify and analyze 1D long-slit reduced spectra.
+    It is provided "as is" without any warranty whatsoever.
+    Permission to use for non-commercial purposes is granted.
+    Permission to modify for personal or internal use is granted,
+    provided that this copyright and disclaimer are included unchanged
+    at the beginning of the file. All other rights are reserved.
+    In particular, redistribution of the code is not allowed.
+
+    How to run: just compile the code with Python 3.X and use the pre-loaded example files
+    to play with the GUI.
+    Check the Python packages needed in the "readme_span.txt" to run this source code.
+
+"""
