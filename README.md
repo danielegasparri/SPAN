@@ -2,6 +2,7 @@
 SPAN: SPectral ANalysis software V4.7
 Daniele Gasparri, February 2024
 
+
 ****Purpose****
 
 SPAN is a Python 3.X graphical interface program designed to perform operations and analyses on astronomical wavelength calibrated 1d spectra. The program accepts ASCII and fits binary tables.
@@ -11,6 +12,7 @@ The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also 
 The software DOES NOT accept ASCII spectra file with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E" (you can do this operation even with the embed text editor of SPAN).
 
 Currently, SPAN reads only the wavelength and the flux, discarding the (potential) column with uncertainties.
+
 
 ****What do you need to run SPAN****
 
@@ -31,6 +33,7 @@ Currently, SPAN reads only the wavelength and the flux, discarding the (potentia
  
     
 ****How SPAN works****
+
 SPAN can work with just one 1d spectrum, either in fits or ASCII file, with the first column to be wavelength and the second flux.
 SPAN can load and process a list of n 1d spectra, where n must be greater than 1. In order to do this, you need to create and load a txt file containing the relative path of the spectra (with respect to the location of the main SPAN program) or the absolute path, with the complete spectra names. The first row of this list file must be commented with # and usually contains something like that: #Spectrum. You can put any type of 1D spectra in this file list, but I strongly suggest to insert spectra with at least the SAME wavelength unit scale.
 It seems difficult, but don't worry: the button 'Create spectra list' in the main panel of SPAN will help you to create a ready to use spectra list file by just selecting a folder containing the spectra you want to process.
