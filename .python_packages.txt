@@ -1,0 +1,8 @@
+#packaeges to install
+Pysimplegui
+Astropy
+Pandas
+Numpy
+Matplotlib
+Scipy
+ppxf
