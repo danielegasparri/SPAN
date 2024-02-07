@@ -1,0 +1,13 @@
+SPAN: SPectral ANalysis software V4.7
+Daniele Gasparri, February 2024
+
+
+This middle frame contains some basic tasks that may be performed on the spectra, grouped in the 'Spectra pre-processing', 'Spectra processing' and 'Spec math' frames.
+
+To perform a task you need to activate the relative checkbok with mouse click.
+
+Any task performed within these frames modifies the selected spectrum and will have effect on the 'Spectral analysis' frame, if you think to use any of these tasks.
+
+You can select multiple tasks (e.g. rebinning, dopcor, add noise...') without limits. The button 'Preview ' in the "Spec. Actions" panel will allow you to see the effect of the task(s) performed. The spectrum that will be shown will be final with all the tasks applied. No intermediate graphical informations are available, so if you perform three tasks, you will see the effect of the three tasks combined. If you don't perform any task, don't worry: the original spectrum will be visible.
+
+The four math tasks in the "Spectra math" panel that involve all the spectra: 'Average all', 'Normalize and average all', 'Sum all', 'Norm. and sum all', act on all the original spectra and then they are insensitive to other tasks performed. By activating the option 'Use for spec. an.' you will force the program to use the result of these operations for the spectral analysis, forgetting any other tasks performed on single spectrum. Be careful to manage this button. Anyway, a message in the terminal window will appear, saying that you will use the combined spectra for the spectral analysis. 

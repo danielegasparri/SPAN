@@ -1,0 +1,19 @@
+SPAN: SPectral ANalysis software V4.7
+Daniele Gasparri, February 2024
+
+###The Spectral analysis panel### 
+This panel is composed by a single frame containing some basics and more advanced spectral analysis tools: 1) Blackbody fitting, 2) Cross-correlation, 3) Velocity dispersion measurement, 4) Equivalent width line measurement, 5) Line fitting, 6) Kinematics with ppxf, 7) Stellar populations with ppxf, 8) Sigma coefficients determination and 9) Correct the EWs for the sigma coefficients.
+Any task is independent and does not modify the spectrum. 
+
+The input spectra can be modified by the tasks performed in the upper panel. If you want to perform the analysis on the original spectra, be sure to deactivate all the previous tasks (they are all deactivated by default!).
+
+The "Preview result" button will show, in the output frame and in a graphic window, the task result on the selected spectrum, except for the "Sigma coeff determination" and "Correct EWs for sigma" tasks, which do not depend on the spectra loaded in the list.
+
+Once you are satisfied on what you have accomplished, you can process the spectra or the single spectrum.
+By clicking on 'Process selected' button, you will perform all the tasks activated in the middle frame  and the "Spectral analysis" frames and save the new processed spectrum to text file. By default, the program will save the intermediate files, that is a file for each task performed, in the order they appear. 
+For example, if you have selected the rebinning, the sigma broadening and the add noise, the program will save a spectrum with the rebinning done, a second spectrum with the rebinning + sigma broadening applied and a third with rebinning + sigma broadening + add noise applied.  
+The results of the spectral analysis frame will be showed in the output frame. If you are not interested in saving all the intermediate specra files, you can just deselect the 'Save intermediate files' option and only the spectrum at the end of the operations selected will be saved. In our esample will be the rebinning + sigma broadening + add noise.
+
+By clicking "Process all", you will apply all the tasks to all the spectra in your list. This is the only way to save in a file the results of the spectral analysis. 
+If you performed a lot of tasks and/or have a lot of spectra, deselect the 'Save intermediate files' option and only the spectra at the end of the processing chain done in the middle panel will be saved. 
+If you want to save also the plots generated during the tasks, activate the option "save plots" and for each spectrum and each spectral analysis task selected the program will save in .eps files the plots, stored in the results/plots folder.

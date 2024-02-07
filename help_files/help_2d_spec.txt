@@ -1,0 +1,18 @@
+SPAN: SPectral ANalysis software V4.7
+Daniele Gasparri, February 2024
+
+###2D spectra extraction ###
+
+This stand alone program of SPAN allow you to extract a 1d spectrum or a series of 1d spectra from a 2d fits image of a long-slit spectrum, with dispersion axis along the X-axis and the spatial axis along the Y-axis.
+
+Before proceed to the extraction, you need to load a valid 2d fits image, then you need to:
+
+1) Open the spectrum and see if everything is ok;
+2) Fit the trace in order to find the maximum along the dispersion axis. You need to set the degree of polynomial curve that will be used to fit the trace and correct the distortion and slope of the spectrum;
+3) Correct the spectrum for distortion and slope using the model trace obtained in the previous step.
+
+Then, you can choose:
+a) extract and save only one 1d spectrum within the selected Y range (useful for point sources);
+b) extract and save a series of n 1d spectrum covering all the spatial axis and obtained by binning contiguos rows in order to reach the desired Signal to Noise Ratio (SNR).
+The SNR threshold that you must insert is just a rough estimation of the real SNR. A good starting value to produce 1D spectra with bins with realistic SNR > 30 is 35. Adjust the SNR Threshold to your preference by looking at the real SNR of the bins.
+The pixel scale parameter is optional. If you set to zero it will not be considered. This option is useful if you have the spectrum of an extended source (e.g. a galaxy) and want to sample different regions.

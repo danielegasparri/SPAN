@@ -1,0 +1,21 @@
+SPAN: SPectral ANalysis software V4.7
+Daniele Gasparri, February 2024
+
+
+****Quick start****
+SPAN can read (almost) any type of 1D spectrum: ASCII, fits 1d (IRAF style) or 2d tables, linear or logaritmic scale. If a log spaced spectra are loaded, the program will let you know that the step is not linear.
+
+Press the "Load spectra" button to load the example files. 
+The spectra loaded will appear in the upper central frame (the white window). 
+
+Just select one spectrum with the mouse, then click "Plot" to see the spectrum. Close the plot to activate again the main panel. 
+
+Leave the mouse above a task or a button for one second to have more informations.
+
+You can select one of the many operations available across the frames. For example, let's select the "Add noise" task, then press "Preview spec." to see the result. If you like it, you can click to "Process selected" button to save the work (but first you need to close the plot window!). If you press "Process all" you will apply the operation selected to all the loaded spectra. The terminal is your friend: it will tell you all the things that the program is doing.
+
+Now, let's try something in the "Spectral analysis" frame. 
+Let's activate the "EW measurement" task and this time click on the "Preview" in the "An. actions" frame to see the result of the operation. 
+The spectrum does look strange to you? Did you unactivate the "Add noise" option above? If not, the "EW measurement" task is analysing this noisy spectrum and not the original one... Congratulations, you just discovered why the "Spectral Analysis" frame is separated from the others: it will consider the spectrum (or the spectra) processed by the other upper frames. If you activate 10 tasks, the spectrum processed in this frame will be the sum of all the activated tasks above. If you don't activate any task, the spectrum processed will be the original loaded. 
+
+Don't be shy: the program has been made to not (almost) crash and if you perform an invalid operation a pop-up window will tell you what's the problem and how to solve it. 
