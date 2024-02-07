@@ -3,10 +3,8 @@ SPAN: SPectral ANalysis software V4.7
 Daniele Gasparri, February 2024
 
 ****Purpose****
-SPAN is a Python 3.X graphical interface designed to perform operations and analyses on astronomical 1d spectra. The program accepts ASCII and fits binary tables.
+SPAN is a Python 3.X graphical interface program designed to perform operations and analyses on astronomical 1d spectra. The program accepts ASCII and fits binary tables.
 SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
-Although your log/ln sampled spectra will be adjusted by the program in order to properly work, none of them will be physically harmed and modified in permanent way.
-Don't worry, anyway: SPAN can automatically read and recognize (almost) any type of 1D spectrum from the near UV to the near IR (300-5000 nm), including ASCII, fits 1d (IRAF style) or 2d tables, with linear or logarithmic scales.
 
 The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, (E)MILES, GALAXEV and FSPS stellar libraries, and, in general, with the ESO standard for spectra.
 The software DOES NOT accept ASCII spectra file with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E" (you can do this operation even with the embedd text editor of SPAN.
@@ -30,10 +28,6 @@ With just few clicks you can process your spectra and see the results in real ti
     11) Io (already in your python)
     12) ppxf
     
-    To automatically check and install the missing packages, just run the script file "install_modules_span.sh" in the terminal:
-    ./install_modules_span.sh
-
-    The stand-alone executables applications are ready to use.
 
  - A screen resolution of at least 1600X900, otherwise the panel will be truncated.
  
