@@ -885,6 +885,7 @@ while True:
         window ['add_pedestal']. Update (value = False)
         window ['multiply']. Update (value = False)
 
+        window ['bb_fitting']. Update (value = False)
         window ['xcorr']. Update (value = False)
         window ['sigma_measurement']. Update (value = False)
         window ['ew_measurement']. Update (value = False)
@@ -3739,7 +3740,7 @@ while True:
             lick_wave_upper_limit = 630
 
             if ((lick_wave_limits[0] < lick_wave_lower_limit and lick_wave_limits[1]< lick_wave_lower_limit) or (lick_wave_limits[0] > lick_wave_upper_limit and lick_wave_limits[1]> lick_wave_upper_limit)):
-                sg.Popup ('The window band is completely of the spectrum range')
+                sg.Popup ('The window band is completely off the spectrum range')
                 blocking_cond = 1
 
             if blocking_cond == 0:

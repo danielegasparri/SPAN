@@ -25,6 +25,9 @@
 
 ######################################################################################
 #Version histories
+
+#version 4.7 (20240201): adapted the code to the new release of ppxf. Now ppxf is not included anymore in the code package but must be installed via pip. Added the possibility to choice between three stellar libraries for the ppxf tasks (kinematics and stellar populations). Added the possibility to save all the parameters and load. Some minor changes to the layout.
+
 #version 4.6 (20240114): added the emission correction and the interpolation of the Lick/IDS indices in the EW measurement task to give the age, metellicity and alpha-enhancment of the stellar populations of galaxies by using the models of Thomas 2010. Also performs MonteCarlo simulations to estimate the uncertainties on stellar parameters.
 
 #version 4.5 (20231221): added the Lick/IDs indices measurements and sigma correction in the EW task
@@ -338,7 +341,7 @@ layout = [
             [sg.Text('Spectra file list', size=(15, 1), auto_size_text=False, justification='center', font = ('Helvetica', 14, 'bold')), sg.InputText('example_files/xshooter_vis_sample_list_spectra.dat', size=(22, 1), key='spec_list' ), sg.FileBrowse(tooltip='Load an ascii file list of spectra or a single (fits, txt) spectrum',size=(7, 1))],
             [sg.Button('Create spectra list', size = (14,1), key = 'listfile',tooltip='If you do not have a spectra file list, you can generate here'), sg.Push(), sg.Checkbox('I have just one spectrum', font = ('Helvetica', 14, 'bold'), key='one_spec',tooltip='Check this if you want to load just one spectrum instead a text file containing the names of the spectra')],
             [sg.Text('Spectra wavelength is in:'), sg.Radio('nm', "RADIO2", size=(5,1), default=True, key = 'wave_units_nm'), sg.Radio('A', "RADIO2", key = 'wave_units_a'), sg.Radio('mu', "RADIO2" , key = 'wave_units_mu')],
-            [sg.Button('Load spectra', size=(13, 1), font = ('Helvetica', 16, 'bold'),button_color=('black','light green')), sg.Push(),sg.Button('Plot',button_color=('black','light gray'), size = (5,1)), sg.Button('Read me',button_color=('black','orange')), sg.Button('Quick start',button_color=('black','orange'))],
+            [sg.Button('Load spectra', size=(13, 1), font = ('Helvetica', 16, 'bold'),button_color=('black','light green')), sg.Push(),sg.Button('Plot',button_color=('black','light gray'), size = (5,1)), sg.Button('Quick start',button_color=('black','orange'))],
 
             #Load the listbox where the spectra loaded will appear
             [sg.Text(' ', font = ('Helvetica',3))]], font=("Helvetica", 16, 'bold'), title_color = 'orange'), sg.Listbox(values = listbox1, size=(43, 9), key='-LIST-', horizontal_scroll=True),
@@ -380,7 +383,7 @@ layout = [
             [sg.Checkbox('Normalize to:', font = ('Helvetica', 14, 'bold'), key = 'norm_spec',tooltip='Normalize the flux to a user defined wavelength'), sg.InputText(800, size = (5,1), key = 'norm_wave'), sg.Text('nm') , sg.Checkbox('Cont. sub.', font = ('Helvetica', 14, 'bold'), key = 'cont_sub',tooltip='Perform a rough continuum subtraction of the spectrum')],
             [sg.Checkbox('Sigma broadening', font = ('Helvetica', 14, 'bold'), key = 'broadening_spec',tooltip='Broad the spectra by adding a user defined sigma (km/s)'), sg.Text('Add sigma (km/s): '), sg.InputText(0, size = (4,1), key = 'sigma_to_add')],
             [sg.Checkbox('Add noise', font = ('Helvetica', 14, 'bold'), key = 'add_noise',tooltip='Adding poissonian noise to the spectrum'), sg.Text('SNR:'), sg.InputText(10, size = (3,1), key = 'noise_to_add'), sg.Checkbox('Mov avg', font = ('Helvetica', 14, 'bold'), key = 'moving_avg',tooltip='Moving average with a user defined box window, in pixel'), sg.Text('pix:'), sg.InputText(11, size = (3,1), key = 'avg_window')],
-                [sg.Text('', font = ('Helvetica', 1))],
+                [sg.Text('', font = ('Helvetica', 10))],
             ], font=('Helvetica', 16, 'bold'),title_color = 'lightgreen'),
 
             #3) spectra math
@@ -389,10 +392,10 @@ layout = [
             [sg.Radio('Average all', "RADIOMATH", key = 'avg_all',tooltip='Average all the loaded spectra'), sg.Radio('Norm. and average all', "RADIOMATH", key = 'norm_avg_all',tooltip='First normalize, then average all the loaded spectra'), sg.Radio('Nothing', "RADIOMATH", default = True, key = 'none',tooltip='Select this option if you DO NOT want to combine the spectra')],
             [sg.Radio('Sum all', "RADIOMATH", key = 'sum_all',tooltip='Sum all the loaded spectra'), sg.Radio('Norm. and sum all', "RADIOMATH", key = 'norm_sum_all',tooltip='First normalize, then sum all the loaded spectra'), sg.Checkbox('Use for spec. an.', text_color = 'yellow', key = 'use_for_spec_an',tooltip='Select this to use the combined spectrum for the spectral analysis')],
             [sg.Checkbox('Subtract normalized average', font = ('Helvetica', 14, 'bold'), key = 'subtract_norm_avg',tooltip='Normalize and subtract to the selected spectrum the normalized average of all the spectra')],
-            [sg.Checkbox('Subtract norm. spec.', font = ('Helvetica', 14, 'bold'), key = 'subtract_norm_spec',tooltip='Normalize and subtract to the selected spectrum a user selected spectrum'), sg.InputText('Spectra to subtract', size = (17,1), key = 'spec_to_sobtract'), sg.FileBrowse(tooltip='Load a spectrum (ASCII or fits) to be normalized and subtracted'), sg.Text(' ')],
+            [sg.Checkbox('Subtract norm. spec.', font = ('Helvetica', 14, 'bold'), key = 'subtract_norm_spec',tooltip='Normalize and subtract to the selected spectrum a user selected spectrum'), sg.InputText('Spectra to subtract', size = (17,1), key = 'spec_to_sobtract'), sg.FileBrowse(tooltip='Load a spectrum (ASCII or fits) to be normalized and subtracted')],
             [sg.Checkbox('Add pedestal', font = ('Helvetica', 14, 'bold'), key = 'add_pedestal',tooltip='Simply add a constant value to the spectrum'), sg.InputText(0, size = (20,1), key = 'pedestal_to_add')],
             [sg.Checkbox('Multiply by a constant', font = ('Helvetica', 14, 'bold'), key = 'multiply',tooltip='Multiply the spectrum by a constant'), sg.InputText(1 , size = (20,1), key = 'multiply_factor')],
-            [sg.Text('', font = ('Helvetica',1))],
+            [sg.Text('', font = ('Helvetica',6))],
             ],font=('Helvetica', 16, 'bold')),
 
             #4) Buttons to perform actions on the spectra
@@ -403,7 +406,7 @@ layout = [
             [sg.Button('Preview spec.',button_color=('black','light gray'), size = (11,1), font=('Helvetica', 14),tooltip='Plot the processed spectrum')],
             [sg.Text('',font=('Helvetica', 14))],
             [sg.Text('',font=('Helvetica', 14))],
-            [sg.Text('', font = ("Helvetica",1))],
+            [sg.Text('', font = ("Helvetica",5))],
             ],font=('Helvetica', 14, 'bold'))],
 
             #[sg.Text('', font = ("Helvetica", 1))],
@@ -456,8 +459,9 @@ layout = [
             [sg.Text('')],
             [sg.Text('')],
             [sg.Text('')],
-            [sg.Button('Clean output',size = (12,1))],
-            [sg.Text('', font = ('Helvetica',1))],
+            [sg.Text('')],
+            [sg.Text('')],
+            [sg.Text('', font = ('Helvetica',3))],
             [sg.HorizontalSeparator()],
             [sg.Button('Compute!',button_color=('black','light grey'), size = (12,1))],
             [sg.Button('Correct!',button_color=('black','light grey'), size = (12,1))],
@@ -465,14 +469,14 @@ layout = [
 
             #COMMENT THE FOLLOWING THREE LINES TO HAVE THE EXTERNAL OUTPUT
             sg.Frame('Output', [
-            [sg.Output(size=(88, 18), key='-OUTPUT-')],
+            [sg.Output(size=(86, 18), key='-OUTPUT-')],
             ] ,font=('Helvetica', 16, 'bold')),
 
 
             ],
 
             #General buttons at the end of the panel
-            [sg.Button('Process selected', button_color=('white','orange'), size=(15, 1),tooltip='Process the selected spectrum by performing all the enabled tasks'), sg.Button('Process all', button_color=('white','red'), size=(15, 1), tooltip='Process all the loaded spectra by performing all the enabled tasks'), sg.Checkbox('Save intermediate files', default = True, text_color = 'lightgreen', key = 'save_intermediate_files', tooltip='Check this if you want to save all the spectra for any of the tasks selected', font = ('Helvetica', 14, 'bold')), sg.Checkbox('Save plots', default = False, text_color='yellow', key = 'save_plots', tooltip='To save all the plots generated by the Spectral Analysis tasks activated and the Process All method', font = ('Helvetica', 14, 'bold')), sg.Button('Clear all tasks'), sg.Text('  '),sg.Button('Text editor', tooltip='Stand alone simple text editor',button_color= ('black','light blue')),sg.Button('FITS header editor', tooltip='Stand alone FITS header editor',button_color= ('black','light blue')), sg.Button('Plot data', tooltip='Stand alone data plotter. ASCII files with spaced rows',button_color= ('black','light blue')), sg.Button('2D spec extraction', tooltip='Stand alone program to extracd 1d spectra from 2d fits',button_color= ('black','light blue')), sg.Push(), sg.Exit(size=(15, 1),tooltip='See you soon!')]
+            [sg.Button('Process selected', button_color=('white','orange'), size=(15, 1),tooltip='Process the selected spectrum by performing all the enabled tasks'), sg.Button('Process all', button_color=('white','red'), size=(15, 1), tooltip='Process all the loaded spectra by performing all the enabled tasks'), sg.Checkbox('Save intermediate files', default = True, text_color = 'lightgreen', key = 'save_intermediate_files', tooltip='Check this if you want to save all the spectra for any of the tasks selected', font = ('Helvetica', 14, 'bold')), sg.Checkbox('Save plots', default = False, text_color='yellow', key = 'save_plots', tooltip='To save all the plots generated by the Spectral Analysis tasks activated and the Process All method', font = ('Helvetica', 14, 'bold')), sg.Text('  '),sg.Button('Text editor', tooltip='Stand alone simple text editor',button_color= ('black','light blue')),sg.Button('FITS header editor', tooltip='Stand alone FITS header editor',button_color= ('black','light blue')), sg.Button('Plot data', tooltip='Stand alone data plotter. ASCII files with spaced rows',button_color= ('black','light blue')), sg.Button('2D spec extraction', tooltip='Stand alone program to extracd 1d spectra from 2d fits',button_color= ('black','light blue')), sg.Push(), sg.Exit(size=(15, 1),tooltip='See you soon!')]
 
                 ]
     #Open the window with the title
@@ -883,6 +887,7 @@ while True:
         window ['add_pedestal']. Update (value = False)
         window ['multiply']. Update (value = False)
 
+        window ['bb_fitting']. Update (value = False)
         window ['xcorr']. Update (value = False)
         window ['sigma_measurement']. Update (value = False)
         window ['ew_measurement']. Update (value = False)
@@ -1610,13 +1615,13 @@ while True:
     if (event == 'ppxf kin parameters'):
         sg.theme('LightBlue1')
         ppxf_kin_layout = [
-            [sg.Text('Wavelength interval (nm):',font = ('Helvetica', 11, 'bold')), sg.InputText(wave1_kin, size = (5,1), key = 'left_wave_ppxf_kin'), sg.Text('-',font = ('Helvetica', 11, 'bold')), sg.InputText(wave2_kin, size = (5,1), key = 'right_wave_ppxf_kin'), sg.Text('Stellar library to use:',font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf_kin, key='markers_ppxf_kin', default_value=stellar_library_kin, readonly=True)],
+            [sg.Text('Wavelength interval (nm):'), sg.InputText(wave1_kin, size = (5,1), key = 'left_wave_ppxf_kin'), sg.Text('-'), sg.InputText(wave2_kin, size = (5,1), key = 'right_wave_ppxf_kin'), sg.Text('Stellar library to use:'), sg.InputCombo(markers_ppxf_kin, key='markers_ppxf_kin', default_value=stellar_library_kin, readonly=True)],
             [sg.HorizontalSeparator()],
-            [sg.Radio('Spec. constant FWHM resolution (A):', "RADIORES1", default = constant_resolution_lambda, key = 'constant_resolution_lambda',tooltip='Instrumental resolution (FWHM) in A of the spectral region',font = ('Helvetica', 11, 'bold')), sg.InputText(resolution_kin , size = (4,1), key = 'ppxf_resolution'), sg.Radio('Spec. constant R resolution:', "RADIORES1", key = 'constant_resolution_r', default = constant_resolution_r,font = ('Helvetica', 11, 'bold')), sg.InputText(resolution_kin_r, size = (5,1), key = 'ppxf_resolution_r')],
+            [sg.Radio('Spec. constant FWHM resolution (A):', "RADIORES1", default = constant_resolution_lambda, key = 'constant_resolution_lambda',tooltip='Instrumental resolution (FWHM) in A of the spectral region'), sg.InputText(resolution_kin , size = (4,1), key = 'ppxf_resolution'), sg.Radio('Spec. constant R resolution:', "RADIORES1", key = 'constant_resolution_r', default = constant_resolution_r), sg.InputText(resolution_kin_r, size = (5,1), key = 'ppxf_resolution_r')],
             [sg.HorizontalSeparator()],
-            [sg.Text('Velocity dispersion guess (km/s):',font = ('Helvetica', 11, 'bold')), sg.InputText(sigma_guess_kin, size = (5,1), key = 'sigma_guess_kin'), sg.Text('Redshift guess:',font = ('Helvetica', 11, 'bold')),sg.InputText(redshift_guess_kin, size = (7,1), key = 'redshift_guess_kin')],
+            [sg.Text('Velocity dispersion guess (km/s):'), sg.InputText(sigma_guess_kin, size = (5,1), key = 'sigma_guess_kin'), sg.Text('Redshift guess:'),sg.InputText(redshift_guess_kin, size = (7,1), key = 'redshift_guess_kin')],
             [sg.HorizontalSeparator()],
-            [sg.Text('Polynomial degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(additive_degree_kin, size = (3,1), key = 'additive_degree_kin')],
+            [sg.Text('Polynomial degree:'), sg.InputText(additive_degree_kin, size = (3,1), key = 'additive_degree_kin')],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
     #if (event == 'ppxf kin parameters'):
@@ -1669,19 +1674,19 @@ while True:
         sg.theme('LightBlue1')
 
         ppxf_pop_layout = [
-            [sg.Text('Wavelength interval (nm):', font = ('Helvetica', 11, 'bold')), sg.InputText(wave1_pop, size = (4,1), key = 'left_wave_ppxf_pop'), sg.Text('-'), sg.InputText(wave2_pop, size = (4,1), key = 'right_wave_ppxf_pop'), sg.Text('Spec. resolution FWHM (A):', font = ('Helvetica', 11, 'bold'),tooltip='Instrumental resolution (FWHM) in A of the spectral region'), sg.InputText(res_pop , size = (3,1), key = 'resolution_ppxf_pop')],
+            [sg.Text('Wavelength interval (nm):'), sg.InputText(wave1_pop, size = (4,1), key = 'left_wave_ppxf_pop'), sg.Text('-'), sg.InputText(wave2_pop, size = (4,1), key = 'right_wave_ppxf_pop'), sg.Text('Spec. resolution FWHM (A):',tooltip='Instrumental resolution (FWHM) in A of the spectral region'), sg.InputText(res_pop , size = (3,1), key = 'resolution_ppxf_pop')],
             #[sg.Text('', font = ('Helvetica', 1))],
             [sg.HorizontalSeparator()],
-            [sg.Text('Velocity dispersion guess (km/s):', font = ('Helvetica', 11, 'bold')), sg.InputText(sigma_guess_pop, size = (6,1), key = 'sigma_guess_pop'), sg.Text('Redshift guess (z):', font = ('Helvetica', 11, 'bold')), sg.InputText(z_pop, size = (8,1), key = 'ppxf_z_pop')],
+            [sg.Text('Velocity dispersion guess (km/s):'), sg.InputText(sigma_guess_pop, size = (6,1), key = 'sigma_guess_pop'), sg.Text('Redshift guess (z):'), sg.InputText(z_pop, size = (8,1), key = 'ppxf_z_pop')],
             #[sg.Text('', font = ('Helvetica', 1))],
             [sg.HorizontalSeparator()],
-            [sg.Radio('Fitting with gas', "RADIOPOP", key = 'gas_pop', default = pop_with_gas, font = ('Helvetica', 11, 'bold')), sg.Checkbox('Tie Balmer', key = 'ppxf_pop_tie_balmer', default = ppxf_pop_tie_balmer), sg.Text('Reddening'), sg.InputText(ppxf_pop_reddening, size = (5,1), key = 'ppxf_pop_reddening'), sg.Radio('Fitting without gas',"RADIOPOP", key = 'no_gas_pop', default = pop_without_gas, font = ('Helvetica', 11, 'bold'))],
+            [sg.Radio('Fitting with gas', "RADIOPOP", key = 'gas_pop', default = pop_with_gas), sg.Checkbox('Tie Balmer', key = 'ppxf_pop_tie_balmer', default = ppxf_pop_tie_balmer), sg.Text('Reddening'), sg.InputText(ppxf_pop_reddening, size = (5,1), key = 'ppxf_pop_reddening'), sg.Radio('Fitting without gas',"RADIOPOP", key = 'no_gas_pop', default = pop_without_gas)],
             #[sg.Text('', font = ('Helvetica', 1))],
             [sg.HorizontalSeparator()],
-            [sg.Text('Regul. error:', font = ('Helvetica', 11, 'bold')), sg.InputText(regul_err, size = (4,1), key = 'regul_err'), sg.Text('Additive degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(additive_degree, size = (3,1), key = 'additive_degree'), sg.Text('Multiplicative degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(multiplicative_degree, size = (3,1), key = 'multiplicative_degree')],
+            [sg.Text('Regul. error:'), sg.InputText(regul_err, size = (4,1), key = 'regul_err'), sg.Text('Additive degree:'), sg.InputText(additive_degree, size = (3,1), key = 'additive_degree'), sg.Text('Multiplicative degree:'), sg.InputText(multiplicative_degree, size = (3,1), key = 'multiplicative_degree')],
             #[sg.Text('', font = ('Helvetica', 1))],
             [sg.HorizontalSeparator()],
-            [sg.Text('Stellar library to use:', font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf, key='markers_ppxf',default_value=stellar_library, readonly=True), sg.Checkbox('Calculate errors for age and met', font = ('Helvetica', 11, 'bold'), key = 'ppxf_err_pop', default = with_errors,tooltip='Calculate the errors for age and met with MonteCarlo simulations')],
+            [sg.Text('Stellar library to use:'), sg.InputCombo(markers_ppxf, key='markers_ppxf',default_value=stellar_library, readonly=True), sg.Checkbox('Calculate errors for age and met', key = 'ppxf_err_pop', default = with_errors,tooltip='Calculate the errors for age and met with MonteCarlo simulations')],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
     #if (event == 'ppxf pop parameters'):
@@ -1855,9 +1860,9 @@ while True:
         sg.theme('DarkBlue3')
 
         editor_layout = [
-            [sg.Multiline(size=(90, 30), key='-TEXT-', font=('Helvetica', 12))],
-            [sg.Button('Open', key='-OPEN-', size = (15,1), font=('Helvetica', 12), button_color=('black','light green')), sg.Button('Save', key='-SAVE-', size = (15,1), font=('Helvetica', 12)),  sg.Button('Find', size = (15,1), font=('Helvetica', 12)), sg.Button('Undo', size = (15,1), font=('Helvetica', 12)) ],
-            [sg.Button('Find/Replace', size = (15,1), font=('Helvetica', 12)), sg.Button('Match rows', size = (15,1), font=('Helvetica', 12)), sg.Button('Create New Column', size = (15,1), font=('Helvetica', 12)), sg.Button('Delete Columns', size = (15,1), font=('Helvetica', 12)), sg.Push(), sg.Button('Close', button_color=('white','orange'), size = (15,1), font=('Helvetica', 12, 'bold'))]
+            [sg.Multiline(size=(90, 30), key='-TEXT-')],
+            [sg.Button('Open', key='-OPEN-', size = (15,1), button_color=('black','light green')), sg.Button('Save', key='-SAVE-', size = (15,1)),  sg.Button('Find', size = (15,1)), sg.Button('Undo', size = (15,1)) ],
+            [sg.Button('Find/Replace', size = (15,1)), sg.Button('Match rows', size = (15,1)), sg.Button('Create New Column', size = (15,1)), sg.Button('Delete Columns', size = (15,1)), sg.Push(), sg.Button('Close', button_color=('white','orange'), size = (15,1))]
         ]
 
         window_editor = sg.Window('Text editor', editor_layout)
@@ -3742,7 +3747,7 @@ while True:
 
             if blocking_cond == 0:
                 # 2) If I want to correct for the emission or doppler correction or sigma correction
-                if lick_correct_emission == True or dop_correction_lick == True or radio_lick_sigma_auto == True:
+                if lick_correct_emission == True or dop_correction_lick == True or (correct_ew_sigma == True and radio_lick_sigma_auto == True):
 
                     #1 running ppxf to fit the emission and retrieve the emission corrected spectra
                     additive_degree_lick = -1
@@ -5820,7 +5825,7 @@ while True:
 
                 if blocking_cond == 0:
                     # 2) If I want to correct for the emission or doppler correction or sigma correction
-                    if lick_correct_emission == True or dop_correction_lick == True or radio_lick_sigma_auto == True:
+                    if lick_correct_emission == True or dop_correction_lick == True or (correct_ew_sigma == True and radio_lick_sigma_auto == True):
 
                         #1 run ppxf to fit the emission and retrieve the emission corrected spectra
                         additive_degree_lick = -1
