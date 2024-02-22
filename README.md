@@ -1,5 +1,5 @@
 # SPAN
-SPAN: SPectral ANalysis software V4.7
+SPAN: SPectral ANalysis software V5.0
 Daniele Gasparri, February 2024
 
 
@@ -24,12 +24,14 @@ Currently, SPAN reads only the wavelength and the flux, discarding the (potentia
     3) Pandas
     4) Numpy
     6) Matplotlib
-    7) Os (already in your python)
-    8) Time (already in your python)
-    9) Math (already in your python)
-    10) Scipy
-    11) Io (already in your python)
-    12) ppxf
+    7) Scipy
+    8) ppxf
+    9) scikit-image
+    10) PyWavelets
+    11) Os (already in your python)
+    12) Time (already in your python)
+    13) Math (already in your python)
+    14) Io (already in your python)
 
  - A screen resolution of at least 1600X900 is required, otherwise the graphical panel will be truncated.
  
@@ -52,8 +54,8 @@ Once you run SPAN, you just need to select one of these file lists, set the appr
 
 ****Quick start****
 
-If you want to compile the source code, type in the terminal: python3 span_4.7.py, then press the "Load spectra" button to load the example files. 
-The span_4.7_win.py and span_4.7_mac.py files represent the same program optimized for windows and macOS operating systems, with just some minor graphical adjustements. Feel free to use the version that better adapts to your screen and machine settings.
+If you want to compile the source code, type in the terminal: python3 span_5.0.py, then press the "Load spectra" button to load the example files. 
+The span_5.0_win.py file represents the same program optimized (I hope) for Windows operating system, with just some minor graphical adjustements. Feel free to use the version that better adapts to your screen and machine settings.
 
 The spectra loaded will appear in the upper central frame (the white window). 
 Just select one spectrum with the mouse, then click "Plot" to see the spectrum. Close the plot to activate again the main panel. 
