@@ -1,4 +1,4 @@
-SPAN: SPectral ANalysis software V4.7
+SPAN: SPectral ANalysis software V5.0
 Daniele Gasparri, February 2024
 
 
