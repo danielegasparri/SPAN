@@ -1,18 +1,14 @@
-SPAN: SPectral ANalysis software V4.7
+SPAN: SPectral ANalysis software V5.0
 Daniele Gasparri, February 2024
 
 ****Purpose****
-SPAN is a Python 3.X graphical interface designed to perform operations and analyses on astronomical 1d spectra. The program accepts ASCII and fits binary tables.
-SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
-Although your log/ln sampled spectra will be adjusted by the program in order to properly work, none of them will be physically harmed and modified in permanent way.
-Don't worry, anyway: SPAN can automatically read and recognize (almost) any type of 1D spectrum from the near UV to the near IR (300-5000 nm), including ASCII, fits 1d (IRAF style) or 2d tables, with linear or logarithmic scales.
+SPAN is a Python 3.X graphical interface program designed to perform operations and analyses on astronomical wavelength calibrated 1D spectra.
+SPAN has been developed and optimized to analyse galaxy and stellar spectra in the optical and near infra-red (NIR) bands.
+The program accepts ASCII and fits binary tables. SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
 
-The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, (E)MILES, GALAXEV and FSPS stellar libraries, and, in general, with the ESO standard for spectra.
-The software DOES NOT accept ASCII spectra file with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E" (you can do this operation even with the embedd text editor of SPAN.
+The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, (E)MILES, GALAXEV and FSPS stellar libraries, and, in general, with the ESO standard for spectra. The software DOES NOT accept ASCII spectra file with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E" (you can do this operation even with the embed text editor of SPAN).
 
 Currently, SPAN reads only the wavelength and the flux, discarding the (potential) column with uncertainties.
-
-With just few clicks you can process your spectra and see the results in real time.
 
 ****What do you need to run SPAN****
 - In order to run the source code, you need Python 3.X and the following libraries (some of them are installed by default, others will require: pip install <library>):
@@ -22,14 +18,16 @@ With just few clicks you can process your spectra and see the results in real ti
     3) Pandas
     4) Numpy
     6) Matplotlib
-    7) Os (already in your python)
-    8) Time (already in your python)
-    9) Math (already in your python)
-    10) Scipy
-    11) Io (already in your python)
-    12) ppxf
+    7) Scipy
+    8) ppxf
+    9) scikit-image
+    10) PyWavelets
+    11) Os (already in your python)
+    12) Time (already in your python)
+    13) Math (already in your python)
+    14) Io (already in your python)
     
-    To automatically check and install the missing packages, just run the script file "install_modules_span.sh" in the terminal:
+    To automatically check and install the missing packages, you can run the script file "install_modules_span.sh" in the terminal:
     ./install_modules_span.sh
 
     The stand-alone executables applications are ready to use.
@@ -38,8 +36,8 @@ With just few clicks you can process your spectra and see the results in real ti
  
     
 ****How SPAN works****
-SPAN can work with just one 1d spectrum, either in Fits or ASCII file, with the first column to be wavelength and the second flux.
-SPAN can load and process a list of n 1d spectra, where n must be greater than 1. In order to do this, you need to create and load a txt file containing the relative path of the spectra (with respect to the location of the main SPAN program) and the complete spectra names. The first row of this list file must be commented with # and usually contains something like that: #Spectrum. You can put any type of 1D spectra in this file list, but I strongly suggest to insert spectra with at least the SAME wavelength unit scale.
+SPAN can work with just one 1D spectrum, either in Fits or ASCII file, with the first column to be wavelength and the second flux.
+SPAN can load and process a list of n 1D spectra, where n must be greater than 1. In order to do this, you need to create and load a txt file containing the relative path of the spectra (with respect to the location of the main SPAN program) and the complete spectra names. The first row of this list file must be commented with # and usually contains something like that: #Spectrum. You can put any type of 1D spectra in this file list, but I strongly suggest to insert spectra with at least the SAME wavelength unit scale.
 It seems difficult, but don't worry: the button 'Create spectra list' will help you to create a spectra list file by selecting a folder containing the spectra you want to process.
 You can find example file lists in the example_files directory. They are:
 1) xshooter_vis_sample_list_spectra.dat , already preloaded in the main application (you just need to click "Load Spectra"), contains 5 spectra of the central regions of nearby galaxies observed with the VIS arm of ESO XShooter spectrograph at resolution of R = 5000. Wavelength units are in nm. Sampling is linear and the wavelength units are 'nm';
@@ -48,7 +46,7 @@ You can find example file lists in the example_files directory. They are:
 
 
 ****Quick start****
-If you want to compile the source code, type in the terminal: python3 span_4.7.py, then press the "Load spectra" button to load the example files.
+If you want to compile the source code, type in the terminal: python3 span_5.0.py, then press the "Load spectra" button to load the example files.
 The spectra loaded will appear in the upper central frame (the white window). 
 Just select one spectrum with the mouse, then click "Plot" to see the spectrum. Close the plot to activate again the main panel. 
 You can select one of the many operations possible in the other frames, for example the "Add noise", then press "Preview spectrum" to see the result. If you like it, you can click to "Process selected" button to save the work (but first you need to close the plot window!). If you press "Process all" you will apply the operation selected to all the loaded spectra. The terminal is your friend: it will tell you all the things that the program is doing.
@@ -97,7 +95,7 @@ By clicking "Process all," you will apply all the tasks to all the spectra in yo
 
 
 ### The sub windows###
-In the bottom part of the GUI, along with 'Process selected' and 'Process all' buttons, you will find 4 light blue buttons. These are sub-program utilities that will allow you to: open, create and modify an ASCII file (Text editor), add and modify the keywords in the header of fits files (FITS header editor), plot the data generated by SPAN and, in general, any data stored in an ASCII text file (Plot data), and extract 1d spectra from a 2d reduced fits image (2D spec extraction).
+In the bottom part of the GUI, along with 'Process selected' and 'Process all' buttons, you will find 4 light blue buttons. These are sub-program utilities that will allow you to: open, create and modify an ASCII file (Text editor), add and modify the keywords in the header of fits files (FITS header editor), plot the data generated by SPAN and, in general, any data stored in an ASCII text file (Plot data), and extract 1D spectra from a 2D reduced fits image (2D spec extraction).
 
 
 ********************************************************************************************************
@@ -215,79 +213,82 @@ In general, be always sure that the wavelength interval you put as parameter in 
 
 ##################################################################################################
 ################################## List of operations you can perform ############################
-SPAN can perform many operations.
+SPAN can perform many operations on the spectra and
 
-WARNING: Except where clearly stated by the program, all the wavelength in the panel are given in nm, in air, and all the velocities in km/s.
+WARNING: Except where clearly stated by the program, all the wavelengths of SPAN are given in nm, in air, and all the velocities in km/s.
 
 Here is a description of the functions:
 
 1) Utilities frame: stand alone frame with action buttons on the right.
     a) HDR = shows the header of the selected spectrum, both fits and ASCII;
     b) Step = shows the step of the selected spectrum;
-    c) Res. = shows the resolution of the selected spectrum by trying to fit an emission sky line. In The W1 and W2 you should put a small wavelength interval containing a sky line: it's up to yuo!
+    c) Res. = shows the resolution of the selected spectrum by trying to fit an emission sky line. In The W1 and W2 you should put a small wavelength interval containing a sky line: it's up to you!
     d) Convert spectrum to = converts the selected spectrum to ASCII of Fits;
     e) Compare with = Compares the selected spectrum with another one selected by the user;
-    f) Convert flux = converts the flux from frecuency to lambda and viceversa. The buttons "see plot", "save one" and "save all" are active to see and save the results for one or all the spectra;
+    f) Convert flux = converts the flux from frequency to lambda and vice-versa. The buttons "see plot", "save one" and "save all" are active to see and save the results for one or all the spectra;
     g) SNR = measures the Signal to Noise in the selected spectrum, in the W. central wavelength selected by the user. The buttons "save one" and "save all" are active to save one or all the SNR calculated for the spectra.
 
 2) Spectra pre-processing frame
-    a) Clean = performs a sigma clipping on the spectra. The sigma clip factor, the resolving power of the spectrum and the velocity dispersion (instrumental and/or intrinsic) of the selected spectrum is required in order to perform a better cleaning. For the "Process all" the option "R and sigma vel file" is available in order to have R and sigma values for all the spectra to be processed;
-    b) Dopcor = performs the doppler correction of the spectrum. Single shot option with user input value of recession velocity (in km/s) is available both for one or all the spectra. "I have a file" option" only works with the "Process all": it contains a text file with the spectra name and the recession velocities. This files is generated by the "Cross-correlation" task in "Process all" mode;
-    c) Helio corr = performs the heliocentric correction on the spectra. The "Single" option require a location, that can be selected from the "loc.list" button (it requires an internet connection). The other fields are the date in the format YYYY-MM-DD and the RA and Dec. of the observed object (in decimals). In the "I have a file" option, available only for "Process all" a list file with location, date, RA and Dec. coordinates for each object is provided.
+    a) Cropping = performs a simple cropping of the spectra. If the wavelength window to crop is outside the spectrum, SPAN will ignore the task and will not perform the crop;
+    b) Dynamic cleaning = performs a sigma clipping on the spectra. The sigma clip factor, the resolving power of the spectrum and the velocity dispersion (instrumental and/or intrinsic) of the selected spectrum is required in order to perform a better cleaning. For the "Process all" the option "R and sigma vel file" is available in order to have R and sigma values for all the spectra to be processed. Be careful to use it with undersampled spectra;
+    c) Wavelet cleaning = performs a wavelet based denoise of the spectra. The mean standard deviation of the spectra continuum (sigma) and the number of wavelet layers to consider are required. You don't need to measure it, just try different values. Be careful to not delete the signal;
+    d) Filtering and denoising = smooths the spectra by performing some denoising filter: box window moving average, gaussian kernel moving average, low-pass Butterworth filter and band-pass Butterworth filter;
+    e) Dopcor = performs the doppler correction of the spectrum. Single shot option with user input value of recession velocity (in km/s) is available both for one or all the spectra. "I have a file" option" only works with the "Process all": it contains a text file with the spectra name and the recession velocities. This files is generated by the "Cross-correlation" task in "Process all" mode;
+    f) Helio corr = performs the heliocentric correction on the spectra. The "Single" option require a location, that can be selected from the "loc.list" button (it requires an internet connection). The other fields are the date in the format YYYY-MM-DD and the RA and Dec. of the observed object (in decimals). In the "I have a file" option, available only for "Process all" a list file with location, date, RA and Dec. coordinates for each object is provided.
 
 3) Spectra processing frame
     a) Rebin = performs a rebin/resample of the spectra in linear wavelength step ("pix.lin" option, with the step in nm) and in sigma linear step ("sigma lin." option, with the sigma step in km/s);
     b) DegradeR = degrades the resolution of the spectra in terms of resolving power R. The original and the final R must be provided;
     c) DegradeL = degrades the resolution of the spectra in terms of delta lambda (useful, for example, to match the resolution of the Lick/IDS indices);
-    d) Normalize to = normalizes the spectra to the wavelength provided by the user (in nm);
-    e) Cont sub. = perform a rough continuum subtraction of the spectra by reducing them to a very small resolution (R = 50) and them subtract the degraded spectra to the original ones;
+    d) Normalize to = normalises the spectra to the wavelength provided by the user (in nm);
+    e) Continuum model = models the continuum shape with two options: 1) Simple filtering of the continuum by reducing the spectrum to a very small resolution (R = 50), and 2) polynomial fitting, with the possibility to masks emission/contaminated regions. Both the continuum models can be divided or subtracted to the original spectrum;
     f) Sigma broadening = broads the spectra by convolving with a gaussian function with the standard deviation provided by the user, in km/s. Remember that the real broadening of the spectra will be the quadrature sum between the broadening and the instrumental sigma of the spectra;
     g) Add noise = adds a random poisson noise to the spectra with a SNR defined by the user. Remember that the final SNR of the spectra will the the sum in quadrature between the added noise and the intrinsic SNR of the spectra;
-    h) Mov avg = smooths the spectra by performing the moving average with a box window with the size decided by the user.
+
 
 4) Spectra math 
     a) Average all = averages all the spectra (only available in "Process selected" mode);
     b) Norm. and average all = normalizes to a common wavelength and average all the spectra (only available in "Process selected" mode);
     c) Sum all = sums all the spectra (only available in "Process selected");
-    d) Norm. and sum all = Normalizes and sum all the spectra (only available in "Process selected"). The option "Use for spec. an." forces the program to use the result of one of these 4 operations for the follwing spectral analysis;
+    d) Norm. and sum all = Normalizes and sum all the spectra (only available in "Process selected"). The option "Use for spec. an." forces the program to use the result of one of these 4 operations for the following spectral analysis;
     e) Subtract normalized average = subtracts to the spectra the normalized average made from all the spectra loaded;
     f) Subtract norm. spec. = subtracts to the spectra a normalized spectrum selected by the user;
-    g) Add pedestal = add a costant to the spectra;
+    g) Add pedestal = add a constant to the spectra;
     i) Multiply by a constant = multiplies the spectra by a user defined constant value.
     
 5) Spectral analysis. This is the core of the program. Each task can be fine-tuned by clicking on the relative parameters button on the right:
-    a) Blackbody fitting = performs a fit of the spectrum with Plack's blackbody equation and gives the temperature estimation. It workd with any type of spectra but it performs better for stellar spectra, with wide (at least 500 nm) wavelength range.
+    a) Blackbody fitting = performs a fit of the spectrum with Plack's blackbody equation and gives the temperature estimation. It works with any type of spectra but it performs better for stellar spectra, with wide (at least 500 nm) wavelength range.
     b)  Cross-correlation = performs a cross-correlation of the spectra with a user selected template. This uses the function crosscorrRV of pyastronomy. The user can smooth the template to a velocity dispersion value in order to improve the cross-correlation and should identify a narrow region of the spectrum to be cross-correlated (tip: the Calcium triplet lines are the best features);
     c) Velocity dispersion measurement = performs the measurement of the velocity dispersion of the spectra by fitting with a user provided template. Some pre-loaded bands in the visible and NIR are shown but the user can select an independent band. The routine succeeds with strong features (the CaT is the best);
-    d) Equivalent width = performs the equivalent width measurement of the spectra, with a single user provided index, with a list of indices or the Lick/IDS system. The results are provided in Angstrom. Montecarlo simulations are run for the uncertainties extimation. The calculation of the Lick/IDS indices can be personalized in many ways: you can correct for the emission, for the velocity dispersion and the recession velocity. You can also perform the linear interpolation with the SSP models of thomas et al. 2010 to retrieve the age, metallicity and alpha enhancment of the stellar populations;
-    e) Line(s) fitting = performs the fitting of an user defined line with user defined parameters and a combination of gaussian model with straigth line. If "CaT lines" is selected, the task will perform an automatic fitting of the Calcium Triplet lines, assuming they have been corrected to the rest frame velocity;
+    d) Equivalent width = performs the equivalent width measurement of the spectra, with a single user provided index, with a list of indices or the Lick/IDS system. The results are provided in Angstrom. Montecarlo simulations are run for the uncertainties estimation. The calculation of the Lick/IDS indices can be personalized in many ways: you can correct for the emission, for the velocity dispersion and the recession velocity. You can also perform the linear interpolation with the SSP models of Thomas et al. 2010 to retrieve the age, metallicity and alpha enhancement of the stellar populations;
+    e) Line(s) fitting = performs the fitting of an user defined line with user defined parameters and a combination of gaussian model with straight line. If "CaT lines" is selected, the task will perform an automatic fitting of the Calcium Triplet lines, assuming they have been corrected to the rest frame velocity;
     f) Kinematics with ppxf = uses the known ppxf algorith of Cappellari to fit a user defined wavelength region of the spectra with a combination of templates. You can select the template library you want between the EMILES, GALAXEV e FSPS. It returns the radial velocity, the velocity dispersion and the higher moments H3 and H4 (and a nice plot courtesy of Cappellari);
-    g) Stellar populations with ppxf = uses the known ppxf algorith of Cappellari to fit a user defined wavelength region of the spectra with a combination of templates. You can select the template library you want between the EMILES, GALAXEV e FSPS. The user can decide wheter include the gas emission or not, the reddening and the order of multiplicative and additive polynomials of the fit. It returns a beautiful plot, the kinematics, the weighted age (in luminosity and mass), metallicity (weighted in luminosity and mass), the M/L and save the best fit template and the emission corrected spectra (if any). Works great in the visible and in the NIR, but that depends on the quality of the template library used;
-    h) Sigma coeff determination = standalone procedure to determine the coefficients necessary to correct the EW to zero velocity dispersion value. It broadens a sample of K and early M stars of the IRTF library up to 400 km/s and calculates the deviation of the equivalent width of the index/index file provided in the EW measurement task. It works only by pressing the "Compute!" button and in "Preview result analysys" mode and creates a text file with a third order polynomial curve that fits the behaviour of any broadened index;
+    g) Stellar populations with ppxf = uses the known ppxf algorith of Cappellari to fit a user defined wavelength region of the spectra with a combination of templates. You can select the template library you want between the EMILES, GALAXEV e FSPS. The user can decide whether include the gas emission or not, the reddening and the order of multiplicative and additive polynomials of the fit. It returns a beautiful plot, the kinematics, the weighted age (in luminosity and mass), metallicity (weighted in luminosity and mass), the M/L and save the best fit template and the emission corrected spectra (if any). Works great in the visible and in the NIR, but that depends on the quality of the template library used;
+    h) Sigma coeff determination = standalone procedure to determine the coefficients necessary to correct the EW to zero velocity dispersion value. It broadens a sample of K and early M stars of the IRTF library up to 400 km/s and calculates the deviation of the equivalent width of the index/index file provided in the EW measurement task. It works only by pressing the "Compute!" button and in "Preview result analysis" mode and creates a text file with a third order polynomial curve that fits the behaviour of any broadened index;
     i) Correct EWs for the sigma = performs the correction of the EW based on the coefficients estimated with the Sigma coeff determination task. It works only by pressing the "Correct!" button mode and require an EW measurement files with the same indices, in the same order, to that considered in the Sigma coeff determination. The output files of the "EW measurement", "Sigma coeff determination" and "Velocity dispersion measurement" are ready to be used for this task, if we are considering the same spectra and indices.
     
 
 ##################################################################################################
 ################################## The sub-programs ############################
 
-The four light-blue buttons at the bottom of the GUI are sub-programs that might help you in the difficul task of analysing and processing astronomical spectra. They work independently from the main program, so you can also not load spectra if you don't need to perform tasks on them. Here is how they works:
+The four light-blue buttons at the bottom of the GUI are sub-programs that might help you in the difficult task of analysing and processing astronomical spectra. They work independently from the main program, so you can also not load spectra if you don't need to perform tasks on them. Here is how they works:
 
-1) Text editor: a simple ASCII file editor where you can create, read or modify ASCII filese, included those generated by the SPAN tasks. Some basics operations are available, such find, replace and merge rows;
+1) Text editor: a simple ASCII file editor where you can create, read or modify ASCII files, included those generated by the SPAN tasks. Some basics operations are available, such find, replace and merge rows;
 
 2) FITS header editor: an header editor to add, remove and save the keywords of fits header files. You can choice between: 'Single fits header editor' to work with the keywords of one fits file, 'List of fits header editor' to modify the keywords of a list of fits files, 'Extract keyword from list' to extract and save in an ASCII file one or more keywords from the headers of a list of fits files;
 
-3) Plot data: a sub-program to plot the data generated by the Spetral analysis task and, in general, all the data stored in ASCII space separated data. Once you browse for the text file and click the 'Load' button, the program will automatically recognise the column names. Select a name for the x and y axis and plot the data to see them in an IDL style plot.
-You can personalise the plot by adding the error bars, set the log scale, add a linear fit (simple fit without considering the uncertainties), set the labels, the range, the size of characters, size and colors of the markers and decide if visualise the legend or not. You can also save the plot in .eps format, in the same main directory where resides SPAN.
-If any error occurr, the program will warn you;
+3) Plot data: a sub-program to plot the data generated by the Spectral analysis task and, in general, all the data stored in ASCII space separated data. Once you browse for the text file and click the 'Load' button, the program will automatically recognise the column names. Select a name for the x and y axis and plot the data to see them in an IDL style plot.
+You can personalise the plot by adding the error bars, set the log scale, add a linear fit (simple fit without considering the uncertainties), set the labels, the range, the size of characters, size and colours of the markers and decide if visualise the legend or not. You can also save the plot in .eps format, in the same main directory where resides SPAN.
+If any error occur, the program will warn you;
 
-4) 2D spec extraction: allows the extraction of a single 1d spectrum or a series of 1d spectra from a reduced and wavelength calibrated 2d fits image containing the long-slit spectrum of a source, with dispersion axis along the X-axis and the spatial axis along the Y-axis.
-Before proceed to the extraction, you need to load a valid 2d fits image, then you need to:
+4) 2D spec extraction: allows the extraction of a single 1D spectrum or a series of 1D spectra from a reduced and wavelength calibrated 2D fits image containing the long-slit spectrum of a source, with dispersion axis along the X-axis and the spatial axis along the Y-axis.
+Before proceed to the extraction, you need to load a valid 2D fits image, then you need to:
     1) Open the spectrum and see if everything is ok;
     2) Fit the trace in order to find the maximum along the dispersion axis. You need to set the degree of polynomial curve that will be used to fit the trace and correct the distortion and slope of the spectrum;
     3) Correct the spectrum for distortion and slope using the model trace obtained in the previous step.
 Then, you can choose:
-    a) extract and save only one 1d spectrum within the selected Y range (useful for point sources);
-    b) extract and save a series of n 1d spectrum covering all the spatial axis and obtained by binning contiguos rows in order to reach the desired Signal to Noise Ratio (SNR).
+    a) extract and save only one 1D spectrum within the selected Y range (useful for point sources);
+    b) extract and save a series of n 1D spectrum covering all the spatial axis and obtained by binning contiguous rows in order to reach the desired Signal to Noise Ratio (SNR).
     The SNR threshold that you must insert is just a rough estimation of the real SNR. A good starting value to produce 1D spectra with bins with realistic SNR > 30 is 35. Adjust the SNR Threshold to your preference by looking at the real SNR of the bins.
     The pixel scale parameter is optional. If you set to zero it will not be considered. This option is useful if you have the spectrum of an extended source (e.g. a galaxy) and want to sample different regions.
 
