@@ -57,6 +57,7 @@ from scipy.optimize import curve_fit
 import scipy as scipy
 from scipy import ndimage, misc # for smooting like IDL smooth function
 from scipy.ndimage import gaussian_filter1d
+from scipy.signal import butter, filtfilt
 
 from scipy.interpolate import interp1d
 from scipy.constants import h,k,c
@@ -81,6 +82,8 @@ from ppxf.ppxf import ppxf
 import ppxf.ppxf_util as util
 import ppxf.sps_util as lib
 from urllib import request
+
+from skimage.restoration import denoise_wavelet
 #*****************************************************************************************************
 # 1) READ THE SPECTRA: INPUT: SPECTRUM NAME, LAMBDA UNITS. OUTPUT: WAVELENGTH AND FLUX
 # Reads ASCII, 1D (flux and delta lambda) and 2D fits spectra (flux, lambda), automatically recognizing them.
@@ -648,10 +651,12 @@ def degrade_to_lick(wavelength, flux, original_resolution, res_delta_lambda):
 
 #*****************************************************************************************************
 # 10) Rough continuum subtraction by degrading the spectrum to a very low resolution and considering this as continuum
-def sub_cont(wavelength, flux):
+def sub_cont(wavelength, flux, operation):
     cont_wave, cont_flux = degrade(wavelength, flux, 5000., 50., False) # degrade the spectra to a fixed value
-    
-    norm_flux = flux/cont_flux #I normalise the continuun, not subtract
+    if operation == 'divide':
+        norm_flux = flux/cont_flux #I normalise the continuun, not subtract
+    if operation == 'subtract':
+        norm_flux = flux - cont_flux #I normalise the continuun, not subtract
     return norm_flux, cont_flux
 
 #*****************************************************************************************************
@@ -1148,8 +1153,8 @@ def sigma_broad(wavelength, flux, sigma_to_broad):
 #22 Add noise
 def add_noise(wavelength, flux, snr):
     
-    #subtract the continuum. This gives me the possibility to have the new spectrum at level = 1, usefull for adding noise
-    norm_flux, cont_flux = sub_cont(wavelength, flux)
+    #normalise the continuum. This gives me the possibility to have the new spectrum at level = 1, usefull for adding noise
+    norm_flux, cont_flux = sub_cont(wavelength, flux, 'divide')
     npoints = len(wavelength)
     
     #generate the noise array
@@ -1179,9 +1184,8 @@ def crosscorr (wavelength_spec, flux_spec, template, lambda_units_template, wave
         #resampling to linear also the template
         wavelength_template, flux_template, npoint_template = resample(wavelength_template_orig, flux_template_orig, step_template)
     
-    elif step_spec < step_template:
+    elif step_spec <= step_template:
         wavelength_template, flux_template, npoint_template = resample(wavelength_template_orig, flux_template_orig, step_spec)
-        
         #resampling to linear also the spec
         wavelength, flux, npoint_resampled = resample(wavelength_spec, flux_spec, step_spec)
         
@@ -1295,8 +1299,8 @@ def sigma_measurement(wavelength, flux, spec_test_template, lambda_units_templat
 
 
     #test: subtract the continuum. I risultati migliorano. Sembrano più stabili
-    flux, cont_flux = sub_cont(wavelength, flux)
-    flux_template, cont_flux = sub_cont(wavelength_template, flux_template)
+    flux, cont_flux = sub_cont(wavelength, flux, 'divide')
+    flux_template, cont_flux = sub_cont(wavelength_template, flux_template, 'divide')
 
     #rebin to smallest # better to rebin all to a constant step, in case it's not
     optimal_step = 2*np.mean(wave_range)*step_sigma/c # I tested that this sampling is the optimal one: smaller values don't change the result, while greater values start to feel the quantization effect.
@@ -1311,7 +1315,7 @@ def sigma_measurement(wavelength, flux, spec_test_template, lambda_units_templat
     #storing the original template flux
     flux_template_original = flux_template
     
-    #extract the line flux and wavelelngth arrays
+    #extract the line flux and wavelength arrays
     line_wave = wavelength[(wavelength >= wave_range[0]) & (wavelength <= wave_range[1])]  
     line_flux_spec = flux[(wavelength >= wave_range[0]) & (wavelength <= wave_range[1])]
     
@@ -2351,7 +2355,7 @@ def multiple_gauss(x, *params):
 def resolution (wavelength, flux, wave1, wave2):
     step = wavelength[1]-wavelength[0]
     
-    #extract the line flux and wavelelngth arrays
+    #extract the line flux and wavelength arrays
     line_wave = wavelength[(wavelength >= wave1) & (wavelength <= wave2)]  
     line_flux_spec = flux[(wavelength >= wave1) & (wavelength <= wave2)]
 
@@ -2444,7 +2448,7 @@ def cat_fitting (wavelength, flux):
     wave1 = 844 #845
     wave2 = 872 #870 
     
-    #extract the line flux and wavelelngth arrays
+    #extract the line flux and wavelength arrays
     line_wave = wavelength[(wavelength >= wave1) & (wavelength <= wave2)]  
     line_flux_spec = flux[(wavelength >= wave1) & (wavelength <= wave2)]
 
@@ -4541,3 +4545,141 @@ def save_to_text_file(file_list, output_file):
 
 
 ###############################################################################
+
+#simple cropping function
+def crop_spec(wavelength, flux, wave_interval):
+    wave1 = np.min(wave_interval)
+    wave2 = np.max(wave_interval)
+    cropped_wave = wavelength[(wavelength >= wave1) & (wavelength <= wave2)]
+    cropped_flux = flux[(wavelength >= wave1) & (wavelength <= wave2)]
+
+    return cropped_wave, cropped_flux
+
+#wavelets denoising
+def wavelet_cleaning(wavelength, flux, sigma, wavelets_layers):
+    #normalizing the spectrum
+    epsilon_norm = 2
+    #norm_flux = norm_spec(wavelength, flux, np.mean(wavelength), epsilon_norm, flux)
+    #flux = norm_flux
+    denoised_flux = denoise_wavelet(flux, sigma=sigma, wavelet='sym5', mode='soft', wavelet_levels=wavelets_layers)
+
+    return denoised_flux
+
+
+def degradeRtoFWHM(wavelength, flux, R_resolution, FWHM_resolution):
+
+    fwhm_to_sigma = 2.3548
+    #original_resolution_lambda_nm = original_resolution/10. #converting to nm!
+    FWHM_resolution = FWHM_resolution/10. #converting to nm!
+
+    R_resolution_to_FWHM_nm = wavelength/R_resolution #array contenente le risoluzioni in FWHM
+    final_resolution_FWHM_nm = np.full_like(R_resolution_to_FWHM_nm, FWHM_resolution, dtype=float)
+
+    real_value_to_broad = np.zeros_like(wavelength)
+    degraded_flux = np.zeros_like(flux)
+
+    try:
+        for i in range (len(wavelength)):
+
+            real_value_to_broad[i] = mt.sqrt(final_resolution_FWHM_nm[i]**2-R_resolution_to_FWHM_nm[i]**2)
+
+        gauss_sigma = real_value_to_broad/fwhm_to_sigma
+
+        #using the varsmooth function of ppxf.util for convolution with variable sigma. Works great!
+        degraded_flux = util.varsmooth(wavelength, flux, gauss_sigma, xout=None, oversample=1)
+        return wavelength, degraded_flux
+    except Exception:
+        print ('You want to improve the resolution? That''s impossible! Skypping...')
+        return wavelength, flux
+
+#def degradeFWHMtoR(wavelength, flux, FWHM_resolution, R_resolution):
+
+    #fwhm_to_sigma = 2.3548
+    ##original_resolution_lambda_nm = original_resolution/10. #converting to nm!
+    #FWHM_resolution = FWHM_resolution/10. #converting to nm!
+
+    #FWHM_resolution_to_R_nm = wavelength/FWHM_resolution
+    #final_resolution_R_nm = np.full_like(FWHM_resolution_to_R_nm, R_resolution, dtype=float)
+
+def mask_spectrum(wavelength, flux, mask_ranges):
+    mask = np.ones_like(wavelength, dtype=bool)
+
+    for mask_range in mask_ranges:
+        mask = mask & ((wavelength < mask_range[0]) | (wavelength > mask_range[1]))
+
+    return mask
+
+def continuum(wavelength, flux, want_to_maks, mask_ranges, poly_degree, math_operation, with_plots):
+
+    if want_to_maks  == True:
+        mask = mask_spectrum(wavelength, flux, mask_ranges)
+        wavelength_masked = wavelength[mask]
+        flux_masked = flux[mask]
+    else:
+        wavelength_masked = wavelength
+        flux_masked = flux
+
+    #poly_degree = 5
+
+    coefficients = np.polyfit(wavelength_masked, flux_masked, poly_degree)
+    continuum_model = np.polyval(coefficients, wavelength)
+
+    if math_operation == 'subtract':
+        new_flux = flux - continuum_model
+    elif math_operation == 'divide':
+        new_flux = flux/continuum_model
+
+    if with_plots == True:
+        # Visualizza i risultati con le regioni mascherate
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Plot dello spettro originale
+        ax.plot(wavelength, flux, label='Original spectrum')
+
+        # Plot del modello del continuo
+        ax.plot(wavelength, continuum_model, label='Continuum model')
+
+        # Plot dello spettro corretto
+        ax.plot(wavelength, new_flux, label='Corrected spectrum')
+
+        # Evidenzia le regioni mascherate utilizzando axvspan
+        if want_to_maks == True:
+            for mask_range in mask_ranges:
+                ax.axvspan(mask_range[0], mask_range[1], color='gray', alpha=0.5)
+
+        ax.legend()
+        ax.set_xlabel('Wavelength')
+        ax.set_ylabel('Flux')
+        plt.title('Continuum fitting')
+        plt.show()
+        plt.close()
+    return new_flux, continuum_model
+
+#lowpass
+def lowpass(wavelength, flux, cut_off, order):
+    try:
+        b, a = butter(order, cut_off, btype='lowpass', analog=False)
+        denoised_flux = filtfilt(b, a, flux)
+        return denoised_flux
+    except:
+        print ('Error applying the lowpass filter. Skipping...')
+        return flux
+
+def mov_avg_gauss(wavelength, flux, sigma):
+    try:
+        denoised_flux = gaussian_filter1d(flux, sigma=sigma)
+        return denoised_flux
+    except:
+        print ('Error applying the gaussian moving average. Skipping...')
+        return flux
+
+#bandpass
+def bandpass(wavelength, flux, lower_cut_off, upper_cut_off, order):
+    try:
+        b, a = butter(order, [lower_cut_off, upper_cut_off], btype='band', analog=False)
+        denoised_flux = filtfilt(b, a, flux)
+        return denoised_flux
+    except:
+        print ('Error applying the bandpass filter. Skipping...')
+        return flux
+
