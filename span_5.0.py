@@ -781,9 +781,9 @@ sigma_coeff_file = 'example_files/results/sigma_coeff.dat'
 
 #2D SPEC EXTRACTION DEFAULT PARAMETERS
 file_path_spec_extr = 'example_files/spectra/NGC5806_image.fits'
-trace_y_range_str = "(960, 1060)"
+trace_y_range_str = "(300, 600)"
 poly_degree_str = "1"
-extract_y_range_str = "(960, 1060)"
+extract_y_range_str = "(300, 600)"
 snr_threshold_str = "20"
 pixel_scale_str = "0.252"
 
