@@ -4,5 +4,5 @@ read -n 1 -s -r -p "If you are ok with that, press any key to continue"
 pip3 install -r .python_packages.txt
 echo -e "###############################################\n"
 echo -e "Python modules installed. Now you can use SPAN!\n"
-echo -e "In the terminal, just do: python3 span_4.5.py \n"
+echo -e "In the terminal, just do: python3 span_5.0.py \n"
 echo -e "###############################################\n"
