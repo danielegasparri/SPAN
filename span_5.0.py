@@ -403,7 +403,7 @@ layout = [
 
             [sg.Checkbox('Dynamic cleaning', font = ('Helvetica', 10, 'bold'), key = 'sigma_clip',tooltip='Perform sigma clipping to erase spikes'), sg.Push(), sg.Button('Clean parameters',button_color= ('black','light blue'), size = (22,1))],
 
-            [sg.Checkbox('Wavelet cleaning', font = ('Helvetica', 10, 'bold'), key = 'wavelet_cleaning',tooltip='Perform wavelet cleaning of the spectrum'), sg.Text('sigma:'),sg.InputText(0.02, key = 'sigma_wavelets', size = (4,1)), sg.Text('Wavelet layers:'), sg.InputText(3, key = 'wavelets_layers', size = (3,1))],
+            [sg.Checkbox('Wavelet cleaning', font = ('Helvetica', 10, 'bold'), key = 'wavelet_cleaning',tooltip='Perform wavelet cleaning of the spectrum'), sg.Text('Sigma:'),sg.InputText(0.02, key = 'sigma_wavelets', size = (4,1)), sg.Text('Wavelet layers:'), sg.InputText(3, key = 'wavelets_layers', size = (3,1))],
 
             [sg.Checkbox('Filtering and denoising', font = ('Helvetica', 10, 'bold'), key = 'filter_denoise',tooltip='Filters to smooth the spectrum'), sg.Push(), sg.Button('Denoise parameters',button_color= ('black','light blue'), size = (22,1))],
 
@@ -416,15 +416,16 @@ layout = [
             #2) spectra processing
             sg.Frame('Spectra processing', [
             [sg.Checkbox('Rebin', font = ('Helvetica', 10, 'bold'), key = 'rebin',tooltip='Rebinning the spectrum, to a linear wavelength step (nm) or to a linear sigma step (km/s)'), sg.Radio('pix lin.', "RADIO1", default=True, key = 'rebin_pix_lin'), sg.InputText(0.02, size = (4,1), key = 'rebin_step_pix'), sg.Radio('sigma lin.', "RADIO1", key = 'rebin_sigma_lin'), sg.InputText(0, size = (3,1), key = 'rebin_step_sigma')],
-            [sg.Checkbox('Degrade resolution', font = ('Helvetica', 10, 'bold'), key = 'degrade_resolution',tooltip='Degrade resolution to a user defined value'), sg.Push(), sg.Button('Degrade parameters',button_color= ('black','light blue'), size = (22,1))],
+            [sg.Checkbox('Degrade resolution', font = ('Helvetica', 10, 'bold'), key = 'degrade_resolution',tooltip='Degrade resolution to a user defined value'), sg.Push(), sg.Button('Degrade parameters',button_color= ('black','light blue'), size = (20,1))],
 
             [sg.Checkbox('Normalise spectrum to:', font = ('Helvetica', 10, 'bold'), key = 'norm_spec',tooltip='Normalise the flux to a user defined wavelength'), sg.InputText(500, size = (6,1), key = 'norm_wave'), sg.Text('nm')],
 
-            [sg.Checkbox('Continuum model', font = ('Helvetica', 10, 'bold'), key = 'cont_sub',tooltip='Perform the continuum estimation to subtract or divide to the spectrum'), sg.Push(), sg.Button('Continuum parameters',button_color= ('black','light blue'), size = (22,1))],
-
             [sg.Checkbox('Sigma broadening', font = ('Helvetica', 10, 'bold'), key = 'broadening_spec',tooltip='Broad the spectrum by adding a user defined sigma (km/s). This will NOT be the total sigma broadening of your spectrum!'), sg.Text('Add sigma (km/s): ', font = ('Helvetica', 10)), sg.InputText(0, size = (4,1), key = 'sigma_to_add')],
             [sg.Checkbox('Add noise', font = ('Helvetica', 10, 'bold'), key = 'add_noise',tooltip='Adding poissonian noise to the spectrum'), sg.Text('Signal to Noise (S/N) to add:'), sg.InputText(10, size = (5,1), key = 'noise_to_add')],
+
+            [sg.Checkbox('Continuum modelling', font = ('Helvetica', 10, 'bold'), key = 'cont_sub',tooltip='Perform the continuum estimation to subtract or divide to the spectrum'), sg.Push(), sg.Button('Continuum parameters',button_color= ('black','light blue'), size = (20,1))],
                 [sg.Text('', font = ('Helvetica', 1))],
+
             ], font=("Helvetica", 12, 'bold'),title_color = 'lightgreen'),
 
             #3) spectra math
@@ -1060,8 +1061,8 @@ while True:
 
 #********** Initializing and checking the variables of the Spectra pre-processing frame **********
 
+    #1) CROPPING PARAMETERS
     cropping_spectrum = values['cropping']
-
     if cropping_spectrum == True:
         try:
             cropping_low_wave = float(values['cropping_low_wave'])
@@ -1070,27 +1071,9 @@ while True:
             sg.popup ('Cropping parameters not valid')
             continue
 
-    wavelet_cleaning = values['wavelet_cleaning']
-    if wavelet_cleaning == True:
 
-        try:
-            sigma_wavelets = float(values['sigma_wavelets'])
-            wavelets_layers = int(values['wavelets_layers'])
-        except:
-            sg.popup('Wavelet parameters not valid')
-            continue
-        if sigma_wavelets <= 0 or wavelets_layers <= 0:
-            sg.Popup ('Wavelet parameters must be greater than zero!')
-            continue
-        if wavelets_layers > 20:
-            sg.Popup ('Wavelet layers must be smaller than 20. Try again')
-            continue
-
-
-
-    #1) sigma clipping and check on the input values
+    #2) DYNAMIC CLEANING PARAMETERS
     sigma_clipping = values['sigma_clip']
-
     if event  == ('Clean parameters'):
 
         sg.theme('LightBlue1')
@@ -1132,290 +1115,27 @@ while True:
 
         clean_window.close()
 
+    #3) WAVELET PARAMETERS
+    wavelet_cleaning = values['wavelet_cleaning']
+    if wavelet_cleaning == True:
 
-    #2) doppler correction and check on the input values
-    dop_cor = values['dopcor']
-
-    if event  == ('Dopcor parameters'):
-
-        sg.theme('LightBlue1')
-        dopcor_layout = [
-
-             [sg.Radio ('I have a file', "RADIODOP", default = dop_cor_have_file, key = 'file_for_dopcor'), sg.InputText(dop_cor_file, size=(14, 1), key = 'dopcor_file'), sg.FileBrowse(tooltip='Load an ASCII file containing: Name of the spectrum, radial velocity to correct (km/s), in the same order of the original spectra list')],
-            [sg.Radio('Single shot', "RADIODOP", default = dop_cor_single_shot, key ='dopcor_single_value'), sg.Text('Rec vel (km/s)'), sg.InputText(dop_cor_single_shot_vel, size = (8,1), key = 'dopcor_value')],
-            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
-            ]
-
-
-        print ('*** Dopcor parameters window open. The main panel will be inactive until you close the window ***')
-        dopcor_window = sg.Window('Dopcor parameters', dopcor_layout)
-
-        while True:
-            dopcor_event, dopcor_values = dopcor_window.read()
-
-            if dopcor_event == sg.WIN_CLOSED:
-                break
-
-
-            dop_cor_have_file = dopcor_values['file_for_dopcor']
-            dop_cor_file = dopcor_values['dopcor_file']
-            dop_cor_single_shot = dopcor_values['dopcor_single_value']
-            #if dop_cor_single_shot == True:
-            try:
-                dop_cor_single_shot_vel = float(dopcor_values['dopcor_value'])
-            except ValueError:
-                sg.popup('Dopcor value is not a number!')
-                continue
-
-            if dopcor_event == 'Confirm':
-                print ('Dopcor parameters confirmed. This main panel is now active again')
-                print ('')
-                break
-
-        dopcor_window.close()
-
-
-    #3) heliocentric correction and check on the input values
-    helio_corr = values['helio_corr']
-
-
-    if event  == ('Heliocor parameters'):
-
-        sg.theme('LightBlue1')
-        heliocor_layout = [
-
-             [sg.Radio ('I have a file with location, date, RA and Dec. for all the spectra:', "RADIOHEL", default = helio_have_file, key = 'file_for_helio'), sg.InputText(helio_file, size = (37,1), key = 'helio_file'), sg.FileBrowse(tooltip='Load an ASCII file containing: Location, Date (YYYY-MM-DD), RA, Dec.')],
-            [sg.Radio('Single correction', "RADIOHEL", default = helio_single_shot, key = 'helio_single_value'), sg.Text('Location:'), sg.InputText(helio_single_shot_location, size = (11,1), key = 'helio_location'), sg.Text('Date:'), sg.InputText(helio_single_shot_date, size = (10,1), key = 'helio_date'), sg.Text('RA:'), sg.InputText(ra_obj, size = (10,1), key = 'helio_ra'), sg.Text('Dec.:'), sg.InputText(dec_obj, size = (10,1), key = 'helio_dec'), sg.Button('loc.list',button_color=('black','light blue'),tooltip='Click to see the pre-loaded location list for heliocentric correction')],
-            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
-            ]
-
-
-        print ('*** Heliocor parameters window open. The main panel will be inactive until you close the window ***')
-        heliocor_window = sg.Window('Heliocor parameters', heliocor_layout)
-
-        while True:
-            heliocor_event, heliocor_values = heliocor_window.read()
-
-            if heliocor_event == sg.WIN_CLOSED:
-                break
-
-            helio_have_file = heliocor_values['file_for_helio']
-            helio_file = heliocor_values['helio_file']
-            helio_single_shot = heliocor_values['helio_single_value']
-            helio_single_shot_location = heliocor_values['helio_location']
-            helio_single_shot_date = heliocor_values['helio_date']
-            if helio_corr == True and helio_single_shot == True:
-                try:
-                    ra_obj = float(heliocor_values['helio_ra'])
-                    dec_obj = float(heliocor_values['helio_dec'])
-                except Exception:
-                    sg.popup('Coordinates not valid!')
-                    continue
-                try:
-                    datetime.datetime.strptime(helio_single_shot_date, '%Y-%m-%d')
-                except Exception:
-                    sg.popup ('Date format not valid. It must be: YYYY-MM-DD')
-                    continue
-                try:
-                    location = EarthLocation.of_site(helio_single_shot_location)
-                except Exception:
-                    sg.popup ('Location not in the list')
-                    continue
-    #activating the button location list
-            if(heliocor_event == 'loc.list'):
-                try:
-                    location_list = EarthLocation.get_site_names()
-                    sg.popup_scrolled(location_list, size=(100, 40))
-                except Exception:
-                    sg.popup('Location list not available. I need an internet connection')
-
-            if heliocor_event == 'Confirm':
-                print ('Heliocor parameters confirmed. This main panel is now active again')
-                print ('')
-                break
-
-        heliocor_window.close()
-
-
-#************ Initializing and checking the variables of the Spectra processing frame ***********
-
-    # TEST NEW WINDOW FOR INSERTING PARAMETERS######################
-
-    #1) rebinning linear and check on the input values
-    rebinning = values['rebin']
-    rebinning_linear = values['rebin_pix_lin']
-    if rebinning == True and rebinning_linear == True:
         try:
-            usr_step_linear = float(values['rebin_step_pix'])
-            if usr_step_linear <=0:
-                sg.popup('Invalid step. Must be > 0!')
-                continue
-        except ValueError:
-            sg.popup('Step is not a number!')
+            sigma_wavelets = float(values['sigma_wavelets'])
+            wavelets_layers = int(values['wavelets_layers'])
+        except:
+            sg.popup('Wavelet parameters not valid')
             continue
-
-    #2) rebinning in the log pix space and check on the input values
-    rebinning_log = values['rebin_sigma_lin']
-    if rebinning == True and rebinning_log == True:
-        try:
-            usr_step_log = float(values['rebin_step_sigma'])
-            if usr_step_log <0:
-                sg.popup('Invalid step. Must be >= 0!')
-                continue
-        except ValueError:
-            sg.popup('Step is not a number!')
+        if sigma_wavelets <= 0 or wavelets_layers <= 0:
+            sg.Popup ('Wavelet parameters must be greater than zero!')
             continue
-
-
-    #3) degrade resolution from R fixed and check on the input values
-    degrade = values['degrade_resolution']
-
-    if event  == ('Degrade parameters'):
-
-        sg.theme('LightBlue1')
-        degrade_res_layout = [
-            [sg.Radio('From R:', "RADIORESR", default = is_initial_res_r, key = 'is_initial_res_r', font = ('Helvetica', 12, 'bold') ), sg.InputText(initial_res_r, size = (6,1), key = 'degrade_from_r'), sg.Radio('to R:', "RADIORESRTOR", default = res_degrade_to_r, key = 'res_degrade_to_r' ), sg.InputText(final_res_r, size = (6,1), key = 'degrade_to_r'), sg.Radio('to FWHM (A):', "RADIORESRTOR", default = res_degrade_to_fwhm, key = 'res_degrade_to_fwhm'), sg.InputText(final_res_r_to_fwhm, size = (6,1), key = 'final_res_r_to_fwhm')],
-            [sg.HorizontalSeparator()],
-            [sg.Radio('From FWHM (A):', "RADIORESR", default = is_initial_res_fwhm, key = 'is_initial_res_fwhm', font = ('Helvetica', 12, 'bold')), sg.InputText(initial_res_fwhm, size = (4,1), key = 'degrade_from_l'), sg.Text('to FWHM (A):'), sg.InputText(final_res_fwhm, size = (4,1), key = 'degrade_to_l')],
-
-            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
-            ]
-
-        print ('*** Degrade resolution parameters window open. The main panel will be inactive until you close the window ***')
-        degrade_res_window = sg.Window('Degrade resolution parameters', degrade_res_layout)
-
-        while True:
-            degrade_res_event, degrade_res_values = degrade_res_window.read()
-
-            if degrade_res_event == sg.WIN_CLOSED:
-                break
-
-            try:
-                is_initial_res_r = degrade_res_values['is_initial_res_r']
-                initial_res_r = int(degrade_res_values['degrade_from_r'])
-                res_degrade_to_r = degrade_res_values['res_degrade_to_r']
-                final_res_r = int(degrade_res_values['degrade_to_r'])
-                res_degrade_to_fwhm = degrade_res_values['res_degrade_to_fwhm']
-                final_res_r_to_fwhm = float(degrade_res_values['final_res_r_to_fwhm'])
-
-                is_initial_res_fwhm = degrade_res_values['is_initial_res_fwhm']
-                initial_res_fwhm = float(degrade_res_values['degrade_from_l'])
-                final_res_fwhm = float(degrade_res_values['degrade_to_l'])
-            except Exception:
-                sg.Popup('Degrade resolution parameters not valid')
-                continue
-
-            if initial_res_r <=0 or final_res_r <=0 or final_res_r_to_fwhm <=0 or initial_res_fwhm <=0 or final_res_fwhm <=0:
-                sg.Popup ('Resolution values cannot be negative or zero!')
-                continue
-
-            if final_res_fwhm < initial_res_fwhm or initial_res_r<final_res_r:
-                sg.popup('You want to improve the resolution? That''s impossible!')
-                continue
-
-            if degrade_res_event == 'Confirm':
-                print ('Degrade resolution parameters confirmed. This main panel is now active again')
-                print ('')
-                break
-
-        degrade_res_window.close()
-
-
-    #5) normalization and check on the input values
-    normalize_wave = values['norm_spec']
-    if normalize_wave == True:
-        try:
-            norm_lambda = float(values['norm_wave'])
-        except ValueError:
-            sg.popup('Normalisation wave not valid!')
-            continue
-
-    #6) Continuum modelling
-    continuum_sub = values['cont_sub']
-
-    if event == 'Continuum parameters':
-
-        sg.theme('LightBlue1')
-        continuum_layout = [
-        [sg.Radio('Continuum model: automatic filtering of the spectrum (works good for smooth spectrum and no emission)', "CONTMODE", default = cont_model_filtering, key = 'cont_model_filtering', font = ('Helvetica', 11, 'bold'))],
-        [sg.HorizontalSeparator()],
-        [sg.Radio('Continuum model: fine-tuning polynomial fitting', "CONTMODE", default = cont_model_poly, key = 'cont_model_poly',font = ('Helvetica', 11, 'bold')), sg.Checkbox('Regions to mask:', default = cont_want_to_maks, key = 'cont_want_to_maks'), sg.InputText(cont_mask_ranges_str, size = (14,1), key = 'cont_mask_ranges'), sg.Text('Polynomial degree:'), sg.InputText(cont_poly_degree, size = (6,1), key = 'cont_poly_degree')],
-        [sg.HorizontalSeparator()],
-        [sg.Text('Operation on the spectrum:'), sg.InputCombo(markers_cont_operations, key='markers_cont_operations', default_value=cont_math_operation, readonly=True)],
-        [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
-        ]
-
-        print ('*** Continuum subtraction window open. The main panel will be inactive until you close the window ***')
-        continuum_window = sg.Window('Continuum parameters', continuum_layout)
-
-        while True:
-            continuum_event, continuum_values = continuum_window.read()
-
-            if continuum_event == sg.WIN_CLOSED:
-                break
-
-            cont_model_filtering = continuum_values['cont_model_filtering']
-            cont_model_poly = continuum_values['cont_model_poly']
-            cont_math_operation = continuum_values['markers_cont_operations']
-            #print (cont_math_operation)
-            if cont_model_poly == True:
-
-                cont_want_to_maks = continuum_values['cont_want_to_maks']
-                if cont_want_to_maks == True:
-                    try:
-                        cont_mask_ranges_str = continuum_values['cont_mask_ranges']
-                        cont_mask_ranges = eval(cont_mask_ranges_str)
-                    except:
-                        sg.Popup('Masking values not valid')
-                        continue
-                try:
-                    cont_poly_degree = int(continuum_values['cont_poly_degree'])
-                except:
-                    sg.Popup ('Polynomial degree not valid')
-                    continue
-                if cont_poly_degree <0 or cont_poly_degree > 11:
-                    sg.Popup('Polynomial degree must be between 0 and 11')
-                    cont_poly_degree = 5
-                    continue
-
-
-            if continuum_event == 'Confirm':
-                print ('Continuum parameters confirmed. This main panel is now active again')
-                print ('')
-                break
-
-        continuum_window.close()
-
-    #7) broadening with a gaussian and check on the input values
-    sigma_broad = values['broadening_spec']
-    if sigma_broad == True:
-        try:
-            sigma_value = float(values['sigma_to_add'])
-            if sigma_value < 0:
-                sg.popup('Invalid sigma broadening. Must be >= 0!')
-                continue
-        except ValueError:
-            sg.popup('Sigma broadening not valid!')
-            continue
-
-    #8) adding poissonian noise and check on the input values
-    add_noise = values['add_noise']
-    if add_noise == True:
-        try:
-            noise = float(values['noise_to_add'])
-            if noise <=0:
-                sg.popup('Invalid SNR. Must be > 0!')
-                continue
-        except ValueError:
-            sg.popup('Noise value not valid!')
+        if wavelets_layers > 20:
+            sg.Popup ('Wavelet layers must be smaller than 20. Try again')
             continue
 
 
 
-
-    #9) Filter denoise parameters
+    #4) FILTERING AND DENOISINS PARAMETERS
     filter_denoise = values['filter_denoise']
-
     if event == 'Denoise parameters':
 
         sg.theme('LightBlue1')
@@ -1442,8 +1162,6 @@ while True:
             gauss_moving_avg = denoise_values['gauss_moving_avg']
             low_pass_filter = denoise_values['low_pass_filter']
             bandpass_filter = denoise_values['bandpass_filter']
-
-
 
             try:
                 if moving_average ==True and box_moving_avg == True:
@@ -1502,9 +1220,276 @@ while True:
 
 
 
+    #5) DOPPLER CORRECTION PARAMETERS
+    dop_cor = values['dopcor']
+
+    if event  == ('Dopcor parameters'):
+
+        sg.theme('LightBlue1')
+        dopcor_layout = [
+
+             [sg.Radio ('I have a file', "RADIODOP", default = dop_cor_have_file, key = 'file_for_dopcor'), sg.InputText(dop_cor_file, size=(14, 1), key = 'dopcor_file'), sg.FileBrowse(tooltip='Load an ASCII file containing: Name of the spectrum, radial velocity to correct (km/s), in the same order of the original spectra list')],
+            [sg.Radio('Single shot', "RADIODOP", default = dop_cor_single_shot, key ='dopcor_single_value'), sg.Text('Rec vel (km/s)'), sg.InputText(dop_cor_single_shot_vel, size = (8,1), key = 'dopcor_value')],
+            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
+            ]
+
+        print ('*** Dopcor parameters window open. The main panel will be inactive until you close the window ***')
+        dopcor_window = sg.Window('Dopcor parameters', dopcor_layout)
+
+        while True:
+            dopcor_event, dopcor_values = dopcor_window.read()
+
+            if dopcor_event == sg.WIN_CLOSED:
+                break
+
+            dop_cor_have_file = dopcor_values['file_for_dopcor']
+            dop_cor_file = dopcor_values['dopcor_file']
+            dop_cor_single_shot = dopcor_values['dopcor_single_value']
+
+            try:
+                dop_cor_single_shot_vel = float(dopcor_values['dopcor_value'])
+            except ValueError:
+                sg.popup('Dopcor value is not a number!')
+                continue
+
+            if dopcor_event == 'Confirm':
+                print ('Dopcor parameters confirmed. This main panel is now active again')
+                print ('')
+                break
+
+        dopcor_window.close()
 
 
+    #6) HELIOCENTRIC CORRECTION PARAMETERS
+    helio_corr = values['helio_corr']
+    if event  == ('Heliocor parameters'):
 
+        sg.theme('LightBlue1')
+        heliocor_layout = [
+
+             [sg.Radio ('I have a file with location, date, RA and Dec. for all the spectra:', "RADIOHEL", default = helio_have_file, key = 'file_for_helio'), sg.InputText(helio_file, size = (37,1), key = 'helio_file'), sg.FileBrowse(tooltip='Load an ASCII file containing: Location, Date (YYYY-MM-DD), RA, Dec.')],
+            [sg.Radio('Single correction', "RADIOHEL", default = helio_single_shot, key = 'helio_single_value'), sg.Text('Location:'), sg.InputText(helio_single_shot_location, size = (11,1), key = 'helio_location'), sg.Text('Date:'), sg.InputText(helio_single_shot_date, size = (10,1), key = 'helio_date'), sg.Text('RA:'), sg.InputText(ra_obj, size = (10,1), key = 'helio_ra'), sg.Text('Dec.:'), sg.InputText(dec_obj, size = (10,1), key = 'helio_dec'), sg.Button('loc.list',button_color=('black','light blue'),tooltip='Click to see the pre-loaded location list for heliocentric correction')],
+            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
+            ]
+
+        print ('*** Heliocor parameters window open. The main panel will be inactive until you close the window ***')
+        heliocor_window = sg.Window('Heliocor parameters', heliocor_layout)
+
+        while True:
+            heliocor_event, heliocor_values = heliocor_window.read()
+
+            if heliocor_event == sg.WIN_CLOSED:
+                break
+
+            helio_have_file = heliocor_values['file_for_helio']
+            helio_file = heliocor_values['helio_file']
+            helio_single_shot = heliocor_values['helio_single_value']
+            helio_single_shot_location = heliocor_values['helio_location']
+            helio_single_shot_date = heliocor_values['helio_date']
+            if helio_corr == True and helio_single_shot == True:
+                try:
+                    ra_obj = float(heliocor_values['helio_ra'])
+                    dec_obj = float(heliocor_values['helio_dec'])
+                except Exception:
+                    sg.popup('Coordinates not valid!')
+                    continue
+                try:
+                    datetime.datetime.strptime(helio_single_shot_date, '%Y-%m-%d')
+                except Exception:
+                    sg.popup ('Date format not valid. It must be: YYYY-MM-DD')
+                    continue
+                try:
+                    location = EarthLocation.of_site(helio_single_shot_location)
+                except Exception:
+                    sg.popup ('Location not in the list')
+                    continue
+    #activating the button location list
+            if(heliocor_event == 'loc.list'):
+                try:
+                    location_list = EarthLocation.get_site_names()
+                    sg.popup_scrolled(location_list, size=(100, 40))
+                except Exception:
+                    sg.popup('Location list not available. I need an internet connection')
+
+            if heliocor_event == 'Confirm':
+                print ('Heliocor parameters confirmed. This main panel is now active again')
+                print ('')
+                break
+
+        heliocor_window.close()
+
+
+#************ Initializing and checking the variables of the Spectra processing frame ***********
+
+    #1) REBINNING PARAMETERS
+    rebinning = values['rebin']
+
+    #a) linear rebinning
+    rebinning_linear = values['rebin_pix_lin']
+    if rebinning == True and rebinning_linear == True:
+        try:
+            usr_step_linear = float(values['rebin_step_pix'])
+            if usr_step_linear <=0:
+                sg.popup('Invalid step. Must be > 0!')
+                continue
+        except ValueError:
+            sg.popup('Step is not a number!')
+            continue
+
+    #b) log rebinning
+    rebinning_log = values['rebin_sigma_lin']
+    if rebinning == True and rebinning_log == True:
+        try:
+            usr_step_log = float(values['rebin_step_sigma'])
+            if usr_step_log <0:
+                sg.popup('Invalid step. Must be >= 0!')
+                continue
+        except ValueError:
+            sg.popup('Step is not a number!')
+            continue
+
+
+    #2) DEGRADE RESOLUTION PARAMETERS
+    degrade = values['degrade_resolution']
+    if event  == ('Degrade parameters'):
+
+        sg.theme('LightBlue1')
+        degrade_res_layout = [
+            [sg.Radio('From R:', "RADIORESR", default = is_initial_res_r, key = 'is_initial_res_r', font = ('Helvetica', 12, 'bold') ), sg.InputText(initial_res_r, size = (6,1), key = 'degrade_from_r'), sg.Radio('to R:', "RADIORESRTOR", default = res_degrade_to_r, key = 'res_degrade_to_r' ), sg.InputText(final_res_r, size = (6,1), key = 'degrade_to_r'), sg.Radio('to FWHM (A):', "RADIORESRTOR", default = res_degrade_to_fwhm, key = 'res_degrade_to_fwhm'), sg.InputText(final_res_r_to_fwhm, size = (6,1), key = 'final_res_r_to_fwhm')],
+            [sg.HorizontalSeparator()],
+            [sg.Radio('From FWHM (A):', "RADIORESR", default = is_initial_res_fwhm, key = 'is_initial_res_fwhm', font = ('Helvetica', 12, 'bold')), sg.InputText(initial_res_fwhm, size = (4,1), key = 'degrade_from_l'), sg.Text('to FWHM (A):'), sg.InputText(final_res_fwhm, size = (4,1), key = 'degrade_to_l')],
+
+            [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
+            ]
+
+        print ('*** Degrade resolution parameters window open. The main panel will be inactive until you close the window ***')
+        degrade_res_window = sg.Window('Degrade resolution parameters', degrade_res_layout)
+
+        while True:
+            degrade_res_event, degrade_res_values = degrade_res_window.read()
+
+            if degrade_res_event == sg.WIN_CLOSED:
+                break
+
+            try:
+                is_initial_res_r = degrade_res_values['is_initial_res_r']
+                initial_res_r = int(degrade_res_values['degrade_from_r'])
+                res_degrade_to_r = degrade_res_values['res_degrade_to_r']
+                final_res_r = int(degrade_res_values['degrade_to_r'])
+                res_degrade_to_fwhm = degrade_res_values['res_degrade_to_fwhm']
+                final_res_r_to_fwhm = float(degrade_res_values['final_res_r_to_fwhm'])
+
+                is_initial_res_fwhm = degrade_res_values['is_initial_res_fwhm']
+                initial_res_fwhm = float(degrade_res_values['degrade_from_l'])
+                final_res_fwhm = float(degrade_res_values['degrade_to_l'])
+            except Exception:
+                sg.Popup('Degrade resolution parameters not valid')
+                continue
+
+            if initial_res_r <=0 or final_res_r <=0 or final_res_r_to_fwhm <=0 or initial_res_fwhm <=0 or final_res_fwhm <=0:
+                sg.Popup ('Resolution values cannot be negative or zero!')
+                continue
+
+            if final_res_fwhm < initial_res_fwhm or initial_res_r<final_res_r:
+                sg.popup('You want to improve the resolution? That''s impossible!')
+                continue
+
+            if degrade_res_event == 'Confirm':
+                print ('Degrade resolution parameters confirmed. This main panel is now active again')
+                print ('')
+                break
+
+        degrade_res_window.close()
+
+
+    #3) NORMALISATION PARAMETERS
+    normalize_wave = values['norm_spec']
+    if normalize_wave == True:
+        try:
+            norm_lambda = float(values['norm_wave'])
+        except ValueError:
+            sg.popup('Normalisation wave not valid!')
+            continue
+
+
+    #4) SIGMA BROADENING PARAMETERS
+    sigma_broad = values['broadening_spec']
+    if sigma_broad == True:
+        try:
+            sigma_value = float(values['sigma_to_add'])
+            if sigma_value < 0:
+                sg.popup('Invalid sigma broadening. Must be >= 0!')
+                continue
+        except ValueError:
+            sg.popup('Sigma broadening not valid!')
+            continue
+
+    #5) ADD NOISE PARAMETERS
+    add_noise = values['add_noise']
+    if add_noise == True:
+        try:
+            noise = float(values['noise_to_add'])
+            if noise <=0:
+                sg.popup('Invalid SNR. Must be > 0!')
+                continue
+        except ValueError:
+            sg.popup('Noise value not valid!')
+            continue
+
+
+    #6) CONTINUUM MODELLING PARAMETERS
+    continuum_sub = values['cont_sub']
+    if event == 'Continuum parameters':
+        sg.theme('LightBlue1')
+        continuum_layout = [
+        [sg.Radio('Continuum model: automatic filtering of the spectrum (works good for smooth spectrum and no emission)', "CONTMODE", default = cont_model_filtering, key = 'cont_model_filtering', font = ('Helvetica', 11, 'bold'))],
+        [sg.HorizontalSeparator()],
+        [sg.Radio('Continuum model: fine-tuning polynomial fitting', "CONTMODE", default = cont_model_poly, key = 'cont_model_poly',font = ('Helvetica', 11, 'bold')), sg.Checkbox('Regions to mask:', default = cont_want_to_maks, key = 'cont_want_to_maks'), sg.InputText(cont_mask_ranges_str, size = (14,1), key = 'cont_mask_ranges'), sg.Text('Polynomial degree:'), sg.InputText(cont_poly_degree, size = (6,1), key = 'cont_poly_degree')],
+        [sg.HorizontalSeparator()],
+        [sg.Text('Operation on the spectrum:'), sg.InputCombo(markers_cont_operations, key='markers_cont_operations', default_value=cont_math_operation, readonly=True)],
+        [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
+        ]
+
+        print ('*** Continuum subtraction window open. The main panel will be inactive until you close the window ***')
+        continuum_window = sg.Window('Continuum parameters', continuum_layout)
+
+        while True:
+            continuum_event, continuum_values = continuum_window.read()
+
+            if continuum_event == sg.WIN_CLOSED:
+                break
+
+            cont_model_filtering = continuum_values['cont_model_filtering']
+            cont_model_poly = continuum_values['cont_model_poly']
+            cont_math_operation = continuum_values['markers_cont_operations']
+            #print (cont_math_operation)
+            if cont_model_poly == True:
+
+                cont_want_to_maks = continuum_values['cont_want_to_maks']
+                if cont_want_to_maks == True:
+                    try:
+                        cont_mask_ranges_str = continuum_values['cont_mask_ranges']
+                        cont_mask_ranges = eval(cont_mask_ranges_str)
+                    except:
+                        sg.Popup('Masking values not valid')
+                        continue
+                try:
+                    cont_poly_degree = int(continuum_values['cont_poly_degree'])
+                except:
+                    sg.Popup ('Polynomial degree not valid')
+                    continue
+                if cont_poly_degree <0 or cont_poly_degree > 11:
+                    sg.Popup('Polynomial degree must be between 0 and 11')
+                    cont_poly_degree = 5
+                    continue
+
+
+            if continuum_event == 'Confirm':
+                print ('Continuum parameters confirmed. This main panel is now active again')
+                print ('')
+                break
+
+        continuum_window.close()
 
 
 
@@ -1567,7 +1552,7 @@ while True:
 #*********************************************************************************************************************
 #*************************************** SUB WINDOWS DEFINITION AND PARAMETERS ***************************************
 
-    #0) Blackbody and check on the input parameters
+    #1) BLACKBODY PARAMETERS
     bb_fit = values['bb_fitting']
     if (event == 'Blackbody parameters'):
         sg.theme('LightBlue1')
@@ -1576,9 +1561,6 @@ while True:
         [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
         ]
 
-    #bb_window = sg.Window('Blackbody Parameters', bb_layout, visible=False)
-
-    #if (event == 'blackbody parameters'):
         print ('*** Blackbody fitting parameters window open. The main panel will be inactive until you close the window ***')
         bb_window = sg.Window('Blackbody fitting parameters', bb_layout)
 
@@ -1623,7 +1605,7 @@ while True:
 
 
 
-    #1) cross-correlation and check on the input values
+    #2) CROSS-CORRELATION PARAMETERS
     cross_corr = values['xcorr']
     if (event == 'Xcorr parameters'):
         sg.theme('LightBlue1')
@@ -1634,7 +1616,6 @@ while True:
         [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
         ]
 
-    #if (event == 'Xcorr parameters'):
         print ('*** Xcorr parameters window open. The main panel will be inactive until you close the window ***')
         xcorr_window = sg.Window('Cross-correlation parameters', xcorr_layout)
 
@@ -1647,8 +1628,6 @@ while True:
             lambda_units_template_crosscorr_nm = xcorr_values['xcorr_template_wave_nm']
             lambda_units_template_crosscorr_a = xcorr_values['xcorr_template_wave_a']
             lambda_units_template_crosscorr_mu = xcorr_values['xcorr_template_wave_mu']
-
-            #if xcorr_event == 'Confirm':
             template_crosscorr = xcorr_values['xcorr_template']
             if (lambda_units_template_crosscorr_nm == True):
                 lambda_units_template_crosscorr = 'nm'
@@ -1732,8 +1711,7 @@ while True:
 
 
 
-
-# 2) VELOCITY DISPERSION
+    # 3) VELOCITY DISPERSION PARAMETERS
     sigma_measurement = values['sigma_measurement']
     if (event == 'Sigma parameters'):
         sg.theme('LightBlue1')
@@ -1746,7 +1724,6 @@ while True:
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
 
-    #if (event == 'Sigma parameters'):
         print ('*** Sigma parameters window open. The main panel will be inactive until you close the window ***')
         sigma_window = sg.Window('Sigma parameters', sigma_layout)
 
@@ -1798,11 +1775,6 @@ while True:
             if band_k == True:
                 band_sigma = np.array([2270., 2370.]) #np.array([2250., 2330.]) #test this band
                 cont_sigma = np.array([2270., 2280.])
-
-            #if band_custom == True:
-                #band_sigma = np.array([low_wave_sigma, high_wave_sigma])
-                #cont_sigma = np.array([low_wave_cont, high_wave_cont])
-
 
 
             if sigma_measurement == True:
@@ -1858,8 +1830,7 @@ while True:
 
 
 
-
-    #3) Equivalent width measurement and check on the input values
+    #4) EQUIVALENT WIDTH PARAMETERS
     ew_measurement = values['ew_measurement']
 
     if (event == 'Equivalent width parameters'):
@@ -1869,7 +1840,6 @@ while True:
             [sg.HorizontalSeparator()],
             [sg.Radio('Single index', "RADIOEW", default = single_index, key = 'ew_single_idx',font = ('Helvetica', 12, 'bold')), sg.Text('blue cont.:'), sg.InputText(idx_left_blue, size = (5,1), key = 'left_wave_blue_cont'), sg.Text('-'), sg.InputText(idx_right_blue, size = (5,1), key = 'right_wave_blue_cont'), sg.Text('red cont.:'), sg.InputText(idx_left_red, size = (5,1), key = 'left_wave_red_cont'), sg.Text('-'),  sg.InputText(idx_right_red, size = (5,1), key = 'right_wave_red_cont'), sg.Text('line:'), sg.InputText(idx_left_line, size = (5,1), key = 'left_line'), sg.Text('-'), sg.InputText(idx_right_line, size = (5,1), key = 'right_line')],
             [sg.HorizontalSeparator()],
-
             [sg.Radio('Lick/IDS indices:', "RADIOEW", default = lick_ew, key = 'ew_lick', font = ('Helvetica', 12, 'bold')), sg.Radio('Constant resolution FWHM:', "RADIOLICKRES", default = lick_constant_fwhm, key ='lick_constant_fwhm'), sg.InputText(spec_lick_res_fwhm, key = 'spec_lick_res_fwhm',size = (7,1)), sg.Radio('Constant resolution R:', "RADIOLICKRES", default = lick_constant_r, key ='lick_constant_r'), sg.InputText(spec_lick_res_r, key = 'spec_lick_res_r',size = (8,1))],
             [sg.Text(' '), sg.Checkbox('Emission line(s) correction:', default = lick_correct_emission, key = 'lick_correct_emission'), sg.Text('Redshift guess'), sg.InputText(z_guess_lick_emission, key = 'z_guess_lick_emission', size = (15,1)), sg.Text(' '), sg.Checkbox('Perform Doppler correction', default = dop_correction_lick, key = 'dop_correction_lick')],
             [sg.Text(' '), sg.Checkbox('Correct for sigma:', default = correct_ew_sigma, key = 'correct_ew_sigma'), sg.Radio('Auto', "RADIOLICKSIGMA", default = radio_lick_sigma_auto, key = 'radio_lick_sigma_auto'), sg.Radio('Single (km/s):', "RADIOLICKSIGMA", default = radio_lick_sigma_single, key = 'radio_lick_sigma_single'), sg.InputText(sigma_single_lick, size = (5,1), key = 'sigma_single_lick'), sg.Radio('List:', "RADIOLICKSIGMA", default = radio_lick_sigma_list, key = 'radio_lick_sigma_list'), sg.InputText(sigma_lick_file, key = 'sigma_lick_file', size = (17,1)), sg.FileBrowse(size = (10,1)) ],
@@ -1954,7 +1924,7 @@ while True:
 
 
 
-    #4) Line fitting and check on the input values
+    #5) LINE(S) FITTING PARAMETERS
     line_fitting = values['line_fitting']
 
     if (event == 'Line fitting parameters'):
@@ -1964,22 +1934,20 @@ while True:
             [sg.Radio('Manual fit of the following line:', "RADIOFILEFIT", default = usr_fit_line, key = 'line_fit_single',tooltip='Fitting of user defined line with the parameters on the right'),sg.Checkbox('Emission', default = emission_line, key = 'emission_line'), sg.Text('Wave:'), sg.InputText(low_wave_fit, size = (4,1), key = 'left_wave_fitting'), sg.Text('-'), sg.InputText(high_wave_fit, size = (4,1), key = 'right_wave_fitting'), sg.Text('Guess:',tooltip='Initial guess only for usr line, fitted with a gaussian and a line'), sg.Text('Y-off'), sg.InputText (y0, key = 'y0', size = (3,1)), sg.Text('Line'), sg.InputText(x0, key = 'x0', size = (4,1)), sg.Text('Height'), sg.InputText(a, key = 'a', size = (3,1)), sg.Text('Sigma'), sg.InputText(sigma, key = 'sigma', size = (3,1)), sg.Text('Slope'), sg.InputText(m, key = 'm', size = (2,1)), sg.Text('Intercept'), sg.InputText(c, key = 'c', size = (2,1))],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
-    #if (event == 'Line fitting parameters'):
+
         print ('*** Line fitting parameters window open. The main panel will be inactive until you close the window ***')
         linefit_window = sg.Window('EW parameters', linefit_layout)
 
         while True:
-
             linefit_event, linefit_values = linefit_window.read()
 
             if linefit_event == sg.WIN_CLOSED:
                 break
 
-            #line_emission = linefit_values['emission_line']
             cat_band_fit = linefit_values['cat_fit']
             usr_fit_line = linefit_values['line_fit_single']
             emission_line = linefit_values['emission_line']
-            #if (line_fitting == True and cat_band_fit == False):
+
             try:
                 low_wave_fit = float(linefit_values['left_wave_fitting'])
                 high_wave_fit = float(linefit_values['right_wave_fitting'])
@@ -2003,7 +1971,6 @@ while True:
             #index_ca3 = [861.9,864.2,870,872.5,864.2,868.2]
 
 
-            #QUANDO CLICCO CONFERMA CHIUDO LA FINESTRA. BASTA COSÌ!
             if linefit_event == 'Confirm':
                 print ('Line fitting parameters confirmed. This main panel is now active again')
                 print ('')
@@ -2013,7 +1980,7 @@ while True:
 
 
 
-    #5) ppxf kinematics and check on the input parameters
+    #6) KINEMATICS WITH PPXF
     perform_kinematics = values['ppxf_kin']
     if (event == 'ppxf kin parameters'):
         sg.theme('LightBlue1')
@@ -2027,7 +1994,7 @@ while True:
             [sg.Text('Polynomial degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(additive_degree_kin, size = (3,1), key = 'additive_degree_kin')],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
-    #if (event == 'ppxf kin parameters'):
+
         print ('*** ppxf kin parameters window open. The main panel will be inactive until you close the window ***')
         ppxf_kin_window = sg.Window('ppxf kinematics parameters', ppxf_kin_layout)
 
@@ -2038,13 +2005,11 @@ while True:
             if ppxf_kin_event == sg.WIN_CLOSED:
                 break
 
-
             constant_resolution_lambda = ppxf_kin_values['constant_resolution_lambda']
             constant_resolution_r = ppxf_kin_values['constant_resolution_r']
             stellar_library_kin = ppxf_kin_values['markers_ppxf_kin']
 
             #check on the wavelength band
-            #if perform_kinematics == True:
             try:
                 wave1_kin = float(ppxf_kin_values['left_wave_ppxf_kin'])
                 wave2_kin = float(ppxf_kin_values['right_wave_ppxf_kin'])
@@ -2058,10 +2023,6 @@ while True:
                 sg.popup ('Input parameters are not valid numbers!')
                 continue
 
-
-
-
-            #QUANDO CLICCO CONFERMA CHIUDO LA FINESTRA. BASTA COSÌ!
             if ppxf_kin_event == 'Confirm':
                 print ('ppxf kin parameters confirmed. This main panel is now active again')
                 print ('')
@@ -2070,7 +2031,8 @@ while True:
         ppxf_kin_window.close()
 
 
-    #6) Stellar populations with ppxf
+
+    #7) STELLAR POPULATIONS WITH PPXF
     stellar_pop = values['ppxf_pop']
 
     if (event == 'ppxf pop parameters'):
@@ -2092,7 +2054,7 @@ while True:
             [sg.Text('Stellar library to use:', font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf, key='markers_ppxf',default_value=stellar_library, readonly=True), sg.Checkbox('Calculate errors for age and met', font = ('Helvetica', 11, 'bold'), key = 'ppxf_err_pop', default = with_errors,tooltip='Calculate the errors for age and met with MonteCarlo simulations')],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
-    #if (event == 'ppxf pop parameters'):
+
         print ('*** ppxf pop parameters window open. The main panel will be inactive until you close the window ***')
         ppxf_pop_window = sg.Window('ppxf Population parameters', ppxf_pop_layout)
 
@@ -2110,7 +2072,7 @@ while True:
             pop_without_gas = ppxf_pop_values['no_gas_pop']
             if pop_without_gas == True:
                 fit_components = ('without_gas')
-            #if stellar_pop == True:
+
             try:
                 wave1_pop = float(ppxf_pop_values['left_wave_ppxf_pop'])
                 wave2_pop = float(ppxf_pop_values['right_wave_ppxf_pop'])
@@ -2127,8 +2089,6 @@ while True:
                 sg.popup ('Invalid input parameters!')
                 continue
 
-
-            #QUANDO CLICCO CONFERMA CHIUDO LA FINESTRA. BASTA COSÌ!
             if ppxf_pop_event == 'Confirm':
                 print ('ppxf pop parameters confirmed. This main panel is now active again')
                 print ('')
@@ -2137,8 +2097,8 @@ while True:
         ppxf_pop_window.close()
 
 
-    #7) velocity dispersion coefficients
-    #TO FIX: THE PROGRAM CRASH WITH DEFAULT VALUES. NEED TO INSERT THE INDEX_LIST FILE AS A PARAMETER AND UNLINK FROM THE EW TASK
+
+    #8) SIGMA COEFF DETERMINATION
     sigma_corr_coeff = values['sigma_coeff']
     if (event == 'Sigma coeff parameters'):
         sg.theme('LightBlue1')
@@ -2149,7 +2109,6 @@ while True:
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
 
-    #if (event == 'sigma coeff parameters'):
         print ('*** Sigma coeff parameters window open. The main panel will be inactive until you close the window ***')
         sigmacorr_window = sg.Window('ppxf Population parameters', sigmacorr_layout)
 
@@ -2162,12 +2121,8 @@ while True:
             if sigmacorr_event == sg.WIN_CLOSED:
                 break
 
-
-
             index_file_corr = sigmacorr_values['idx_corr_file']
-
             have_index_file_corr = sigmacorr_values['ew_corr_idx_file']
-            #index_file = sigmacorr_values['idx_file']
             single_index_corr = sigmacorr_values['ew_corr_single_idx']
 
             try:
@@ -2182,8 +2137,6 @@ while True:
             except ValueError:
                 sg.popup('Index values not valid!')
                 continue
-
-
 
             stellar_spectra_coeff_file = sigmacorr_values['sigma_coeff_sample_list']
             lambda_units_coeff_nm = sigmacorr_values['sigma_coeff_sample_list_wave_nm']
@@ -2203,9 +2156,6 @@ while True:
             else:
                 smooth_value_sample = 0.
 
-            #same_idx_ew_task = sigmacorr_values['sigma_coeff_sample_same_idx'] #which is always true!
-
-            #QUANDO CLICCO CONFERMA CHIUDO LA FINESTRA. BASTA COSÌ!
             if sigmacorr_event == 'Confirm':
                 print ('sigma coeff parameters confirmed. This main panel is now active again')
                 print ('')
@@ -2217,7 +2167,7 @@ while True:
 
 
 
-    #8) application of the velocity dispersion coefficients
+    #9) CORRECT EWS FOR SIGMA
     correct_ew = values['sigma_corr']
     if (event == 'Sigma corr parameters'):
         sg.theme('LightBlue1')
@@ -2226,7 +2176,6 @@ while True:
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
 
-    #if (event == 'sigma corr parameters'):
         print ('*** Sigma corr parameters window open. The main panel will be inactive until you close the window ***')
         correw_window = sg.Window('Sigma correction parameters', correw_layout)
 
@@ -2241,7 +2190,6 @@ while True:
             ew_list_file = correw_values['ew_file_to_correct']
             sigma_coeff_file = correw_values['coeff_sigma_file']
 
-            #QUANDO CLICCO CONFERMA CHIUDO LA FINESTRA. BASTA COSÌ!
             if correw_event == 'Confirm':
                 print ('sigma corr parameters confirmed. This main panel is now active again')
                 print ('')
@@ -2939,8 +2887,6 @@ while True:
                 if cond_spec_existence == False:
                     spec_not_exist.append(spec_names[x])
                     stop_condition = 1
-                #else:
-                    #spec_exist.append(spec_names[x])
 
             if stop_condition == 1:
                 if len(spec_not_exist) == len(spec_names):
@@ -2962,9 +2908,6 @@ while True:
                 spec_names_nopath = [os.path.splitext(os.path.basename(f))[0] for f in spec_names]
 
 
-
-
-
             #3) Check if the files loaded are really valid spectra
             spec_not_readable = []
             stop_condition2 = 0
@@ -2983,8 +2926,6 @@ while True:
                     spec_not_readable.append(spec_names[x])
                     #sg.popup('Ops! Cannot read the spectrum. Maybe you upload a list of spectra?')
                     continue
-
-
 
             if stop_condition2 == 1:
                 if len(spec_not_readable) == len(spec_names):
@@ -3178,7 +3119,6 @@ while True:
         if util_task == 0:
             sg.popup('You need to select an option before click Show info')
             continue
-
 
 
     if (event == 'One'):
@@ -3465,9 +3405,37 @@ while True:
         continue
 
 
+#################################################################################################
+#################################################################################################
 
-#################################################################################################
-#################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #  ************************* MEGA EVENT 1: PRESS PREVIEW SPECTRUM OR PROCESS SELECTED! ****************************
 # VALIDD FOR SPECTRA PRE-PROCESSING, PROCESSING AND MATH FRAMES
 
@@ -3483,7 +3451,7 @@ while True:
             continue
 
     #**************** spectra pre-processing ***********************************
-        # 1) cropping
+        # 1) CROPPING
         if cropping_spectrum == True:
             task_done = 1
             task_spec = 1
@@ -3506,13 +3474,14 @@ while True:
                 print ('Something went wrong, cannot complete the task. Check the spectrum. Tip: it is really a spectrum or a SED?')
                 continue
 
+            #limits wavelength range. Put here because the dopcor task can modify it and I don't need earlier
+            wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
 
-        # 2) Sigma clipping
+        # 2) DYNAMIC CLEANING
         if sigma_clipping == True and sigma_clip_have_file == False:
             task_done = 1
             task_spec = 1
             print ('*** Sigma clip task ***')
-
 
             clip_wavelength, clip_flux = span.sigma_clip(wavelength, flux, clip_factor, sigma_clip_resolution, sigma_clip_single_value)
             wavelength = clip_wavelength
@@ -3533,8 +3502,7 @@ while True:
             continue
 
 
-
-        # 3) wavelets denoise
+        # 3) WAVELET CLEANING
         if wavelet_cleaning == True:
             task_done = 1
             task_spec = 1
@@ -3554,7 +3522,82 @@ while True:
                 #continue
 
 
-        #4) Rebinning
+        # 4) FILTERING AND DENOISING
+        if (filter_denoise == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** Denoising ***')
+
+            if moving_average == True and box_moving_avg == True:
+                denoised_flux = span.mov_avg(flux, box_moving_avg_size)
+                flux = denoised_flux
+            if moving_average == True and gauss_moving_avg == True:
+                denoised_flux = span.mov_avg_gauss(wavelength, flux, gauss_moving_avg_kernel)
+                flux = denoised_flux
+            if low_pass_filter == True:
+                denoised_flux = span.lowpass(wavelength, flux, lowpass_cut_off, lowpass_order)
+                flux = denoised_flux
+            if bandpass_filter == True:
+                denoised_flux = span.bandpass(wavelength, flux, bandpass_lower_cut_off, bandpass_upper_cut_off, bandpass_order)
+                flux = denoised_flux
+
+            if event == 'Process selected' and save_intermediate_files == True:
+                #denoised_suffix = str(int(round(box_moving_avg_size)))
+                file_mov_avg = result_spec+'denoised_' + prev_spec_nopath + '.dat'
+                np.savetxt(file_mov_avg, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                print ('File saved: ', file_mov_avg)
+                print('')
+
+
+        # 5) DOPPLER CORRECTION
+        if (dop_cor == True and dop_cor_single_shot == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** Doppler correction ***')
+            dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dop_cor_single_shot_vel)
+            wavelength = dopcor_wave
+            flux = dopcor_flux
+
+            #limits wavelength range. Put here because the dopcor task can modify it and I don't need earlier
+            wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
+
+            if event == 'Process selected' and save_intermediate_files == True:
+                file_dopcor = result_spec+'dopcor_' + prev_spec_nopath + '.dat'
+                np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                print ('File saved: ', file_dopcor)
+                print('')
+        elif (dop_cor == True and dop_cor_single_shot == False):
+            sg.popup('If you want to process just one file, please select the one shot value!')
+            continue
+
+
+        #6) HELIOCENTRIC CORRECTION
+        if (helio_corr == True and helio_single_shot == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** Heliocentric correction ***')
+            correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj)
+            print ('Heliocentric correction: ', correction, 'km/s')
+            wavelength = new_wavelength
+            flux = new_flux
+
+            #limits wavelength range. Put here because the dopcor task can modify it and I don't need earlier
+            wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
+
+            if event == 'Process selected' and save_intermediate_files == True:
+                file_helio = result_spec+'helio_' + prev_spec_nopath + '.dat'
+                np.savetxt(file_helio, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                print ('File saved: ', file_helio)
+                print('')
+        elif (helio_corr == True and helio_single_shot == False):
+            sg.popup('If you want to process just one file, please select the one shot value!')
+            continue
+
+
+
+#************************************** SPECTRA PROCESSING *************************
+
+        #1) REBIN
         #if rebinning linear selected, I do it
         if rebinning == True and rebinning_linear == True:
             task_done = 1
@@ -3589,54 +3632,9 @@ while True:
                 print('')
 
 
-        # 5) dopcor
-        #only if I put a value different than zero in the preview value window
-        if (dop_cor == True and dop_cor_single_shot == True):
-            task_done = 1
-            task_spec = 1
-            print ('*** Doppler correction ***')
-            dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dop_cor_single_shot_vel)
-            wavelength = dopcor_wave
-            flux = dopcor_flux
 
-            if event == 'Process selected' and save_intermediate_files == True:
-                file_dopcor = result_spec+'dopcor_' + prev_spec_nopath + '.dat'
-                np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                print ('File saved: ', file_dopcor)
-                print('')
-        elif (dop_cor == True and dop_cor_single_shot == False):
-            sg.popup('If you want to process just one file, please select the one shot value!')
-            continue
-
-        #limits wavelength range. Put here because the dopcor task can modify it and I don't need earlier
-        wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
-
-
-        #6) Heliocor
-        #Heliocentric correction, one shot
-        if (helio_corr == True and helio_single_shot == True):
-            task_done = 1
-            task_spec = 1
-            print ('*** Heliocentric correction ***')
-            correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj)
-            print ('Heliocentric correction: ', correction, 'km/s')
-            wavelength = new_wavelength
-            flux = new_flux
-
-            if event == 'Process selected' and save_intermediate_files == True:
-                file_helio = result_spec+'helio_' + prev_spec_nopath + '.dat'
-                np.savetxt(file_helio, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                print ('File saved: ', file_helio)
-                print('')
-        elif (helio_corr == True and helio_single_shot == False):
-            sg.popup('If you want to process just one file, please select the one shot value!')
-            continue
-
-
-#************************************** SPECTRA PROCESSING *************************
-        # 1) Degrade resolution
-
-        #a) DEGRADE FROM R TO R
+        # 2) DEGRADE RESOLUTION
+            #a) DEGRADE FROM R TO R
         if degrade == True and is_initial_res_r == True and res_degrade_to_r == True:
 
             task_done = 1
@@ -3656,7 +3654,7 @@ while True:
                 print('')
 
 
-        #2) DEGRADE FROM R TO FWHM
+            #B) DEGRADE FROM R TO FWHM
         if degrade == True and is_initial_res_r == True and res_degrade_to_fwhm == True:
             task_done = 1
             task_spec = 1
@@ -3674,7 +3672,8 @@ while True:
                 print ('File saved: ', file_degraded_R_to_FWHM)
                 print('')
 
-        #3) DEGRADE FROM FWHM TO FWHM
+
+            #C) DEGRADE FROM FWHM TO FWHM
         if degrade == True and is_initial_res_fwhm == True:
 
             task_done = 1
@@ -3695,7 +3694,8 @@ while True:
                 print('')
 
 
-        #normalizig to a lambda
+
+        # 3) NORMALISE SPECTRUM TO
         if normalize_wave == True:
             task_done = 1
             task_spec = 1
@@ -3718,7 +3718,43 @@ while True:
                 print ('File saved: ', file_normalized)
                 print('')
 
-        #continuum modelling
+
+
+        # 4) SIGMA BROADENING
+        if (sigma_broad == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** Sigma broadening ***')
+            broadened_flux = span.sigma_broad(wavelength, flux, sigma_value)
+            flux = broadened_flux
+
+            if event == 'Process selected' and save_intermediate_files == True:
+                broad_suffix = str(int(round(sigma_value)))
+                file_broad = result_spec+'broad' + broad_suffix + prev_spec_nopath + '.dat'
+                np.savetxt(file_broad, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                print ('File saved: ', file_broad)
+                print('')
+
+
+
+        # 5) ADD NOISE
+        if (add_noise == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** Add noise ***')
+            noisy_flux = span.add_noise(wavelength, flux, noise)
+            flux = noisy_flux
+
+            if event == 'Process selected' and save_intermediate_files == True:
+                noise_suffix = str(int(round(noise)))
+                file_noise = result_spec+'SNR' + noise_suffix + prev_spec_nopath + '.dat'
+                np.savetxt(file_noise, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                print ('File saved: ', file_noise)
+                print('')
+
+
+
+        # 6) CONTINUUM MODELLING
         if continuum_sub == True:
             task_done = 1
             task_spec = 1
@@ -3746,65 +3782,13 @@ while True:
                 print('')
 
 
-        #sigma broadening
-        if (sigma_broad == True):
-            task_done = 1
-            task_spec = 1
-            print ('*** Sigma broadening ***')
-            broadened_flux = span.sigma_broad(wavelength, flux, sigma_value)
-            flux = broadened_flux
 
-            if event == 'Process selected' and save_intermediate_files == True:
-                broad_suffix = str(int(round(sigma_value)))
-                file_broad = result_spec+'broad' + broad_suffix + prev_spec_nopath + '.dat'
-                np.savetxt(file_broad, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                print ('File saved: ', file_broad)
-                print('')
 
-        #adding noise
-        if (add_noise == True):
-            task_done = 1
-            task_spec = 1
-            print ('*** Add noise ***')
-            noisy_flux = span.add_noise(wavelength, flux, noise)
-            flux = noisy_flux
 
-            if event == 'Process selected' and save_intermediate_files == True:
-                noise_suffix = str(int(round(noise)))
-                file_noise = result_spec+'SNR' + noise_suffix + prev_spec_nopath + '.dat'
-                np.savetxt(file_noise, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                print ('File saved: ', file_noise)
-                print('')
-
-        #Denoising
-        if (filter_denoise == True):
-            task_done = 1
-            task_spec = 1
-            print ('*** Denoising ***')
-
-            if moving_average == True and box_moving_avg == True:
-                denoised_flux = span.mov_avg(flux, box_moving_avg_size)
-                flux = denoised_flux
-            if moving_average == True and gauss_moving_avg == True:
-                denoised_flux = span.mov_avg_gauss(wavelength, flux, gauss_moving_avg_kernel)
-                flux = denoised_flux
-            if low_pass_filter == True:
-                denoised_flux = span.lowpass(wavelength, flux, lowpass_cut_off, lowpass_order)
-                flux = denoised_flux
-            if bandpass_filter == True:
-                denoised_flux = span.bandpass(wavelength, flux, bandpass_lower_cut_off, bandpass_upper_cut_off, bandpass_order)
-                flux = denoised_flux
-
-            if event == 'Process selected' and save_intermediate_files == True:
-                #denoised_suffix = str(int(round(box_moving_avg_size)))
-                file_mov_avg = result_spec+'denoised_' + prev_spec_nopath + '.dat'
-                np.savetxt(file_mov_avg, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                print ('File saved: ', file_mov_avg)
-                print('')
 
 #************************************** SPEC MATH *******************************************
 
-        #subtract normalized average
+        # 1) subtract normalized average
         if (subtract_normalized_avg == True and values['one_spec'] == False):
             task_done = 1
             task_spec = 1
@@ -3821,7 +3805,7 @@ while True:
             sg.popup('There is no average to subtract!')
             continue
 
-        #subtract normalized single
+        # 2) subtract normalized single
         if (subtract_normalized_spec == True):
             task_done = 1
             task_spec = 1
@@ -3842,7 +3826,7 @@ while True:
                 print ('File saved: ', file_subtracted_single)
                 print('')
 
-        #add pedestal
+        # 3) add pedestal
         if (add_pedestal == True):
             task_done = 1
             task_spec = 1
@@ -3856,7 +3840,7 @@ while True:
                 print ('File saved: ', file_pedestal)
                 print('')
 
-        #multiply by a constant
+        # 4) multiply by a constant
         if (multiply == True):
             task_done = 1
             task_spec = 1
@@ -3986,7 +3970,7 @@ while True:
 
 #************************************** SPECTRA ANALYSIS ********************************
 
-        #Blackbody fitting
+        # 1) BLACKBODY FITTING
         task_analysis = 0
         if (bb_fit == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
@@ -4011,8 +3995,8 @@ while True:
             print ('')
 
 
-        #cross correlation for the RV
-        #task_analysis = 0
+
+        # 2) CROSS-CORRELATION
         if (cross_corr == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4061,7 +4045,8 @@ while True:
                 plt.show()
 
 
-        #sigma measurement
+
+        # 3) VELOCITY DISPERSION
         if (sigma_measurement == True and event == 'Process selected'):
             task_done = 1
             task_analysis = 1
@@ -4138,8 +4123,8 @@ while True:
 
 
 
-        #Equivalent width measurement
-        #1) If I want to measure just one index
+        # 4) EQUIVALENT WIDTH (EW)
+            #a) If I want to measure just one index
         if (ew_measurement == True and single_index == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4162,7 +4147,7 @@ while True:
             print ('SNR:', snr_ew_array, 'per pix')
             print ('')
 
-        #2) If I have an index list file
+            #b) If I have an index list file
         if (ew_measurement == True and have_index_file == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4207,9 +4192,7 @@ while True:
             print ('EW in Mag: ', ew_array)
             print ('SNR: ', snr_ew_array, 'per pix')
 
-
-
-        #3) If I want to measure the Lick/IDS indices
+            #c) If I want to measure the Lick/IDS indices
         if (ew_measurement == True and lick_ew == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4588,8 +4571,7 @@ while True:
 
 
 
-
-        #Line fitting
+        # 5) LINE(S) FITTING
         #cat
         if (line_fitting == True and cat_band_fit == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
@@ -4777,7 +4759,8 @@ while True:
             plt.show()
 
 
-        #kinematics with ppxf
+
+        # 6) KINEMATICS WITH PPXF
         if (perform_kinematics == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4831,7 +4814,7 @@ while True:
 
 
 
-        #stellar populations with ppxf
+        # 7) STELLAR POPULATIONS WITH PPXF
         if (stellar_pop == True and (event == 'Process selected' or event == 'Preview result')):
             task_done = 1
             task_analysis = 1
@@ -4931,8 +4914,8 @@ while True:
 
 
 
-        #correction coefficients determination
-        #1) If I have a single index
+        # 8) SIGMA COEFF DETERMINATION
+            #a) If I have a single index
         if (sigma_corr_coeff == True and single_index_corr == True and event == 'Preview result'):
             task_done = 1
             task_analysis = 1
@@ -4992,8 +4975,7 @@ while True:
                 print('Spline coefficients for the errors')
                 print(err_coeff_array)
 
-
-        #2) If I have a list of indices
+            #b) If I have a list of indices
         if (sigma_corr_coeff == True and single_index_corr == False and event == 'Preview result'):
             task_done = 1
             task_analysis = 1
@@ -5058,7 +5040,7 @@ while True:
 
 
 
-        #Correct EW task
+        # 9) CORRECT EWS FOR SIGMA
         if (correct_ew == True and event == 'Process selected'):
             sg.popup('This task only works with the grey right button Correct!')
             continue
@@ -5138,7 +5120,7 @@ while True:
         #Setting up the ASCII files with the results of the spectral analysis, only if I selected the task! This is useful because if an error occurs during the computation, you still will have the results written until the error!
 
 
-        #0) Blackbody
+        #1) Blackbody
         if (bb_fit == True):
             bb_file = result_bb_dir+'/'+spectra_list_name+'_bb_data_' +timestamp + '.dat'
             bb_id = ['#Spectrum', 'T(K)']
@@ -5152,7 +5134,7 @@ while True:
             df_bb.to_csv(bb_file, index= True, sep=' ')
 
 
-        #1) Cross correlation
+        #2) Cross correlation
         if (cross_corr == True):
             rv_file = result_xcorr_dir+'/'+spectra_list_name+'_rv_data_' +timestamp + '.dat'
             rv_id = ['#Spectrum', 'RV(km/s)']
@@ -5166,7 +5148,7 @@ while True:
             df_rv.to_csv(rv_file, index= True, sep=' ')
 
 
-        #2) Velocity dispersion measurement
+        #3) Velocity dispersion measurement
         if (sigma_measurement == True):
             sigma_file = result_vel_disp_dir+'/'+spectra_list_name+'_sigma_data_'+timestamp +'.dat'
             sigma_id = ['#Spectrum', 'Sigma(km/s)', 'err']
@@ -5181,7 +5163,7 @@ while True:
             df_sigma.to_csv(sigma_file, index= True, sep=' ')
 
 
-        #3) EW measurement
+        #4) EW measurement
         if (ew_measurement == True and single_index == True):
             ew_file = result_ew_data_dir+'/'+spectra_list_name+'_ew_data_' +timestamp + '.dat'
             ew_id = ['#Spectrum', 'ew(A)', 'err']
@@ -5370,7 +5352,7 @@ while True:
 
 
 
-        #4) Line fitting
+        #5) Line(s) fitting
         if (line_fitting == True and cat_band_fit == True):
             fit_file = result_line_fitting_dir+'/'+spectra_list_name+'_fit_data_' +timestamp + '.dat'
             fit_id = ['#Spectrum', 'ca1_wave', 'ca2_wave', 'ca3_wave', 'dw_ca1', 'dw_ca2','dw_ca3', 'ew_ca1','ew_ca2','ew_ca3']
@@ -5393,7 +5375,7 @@ while True:
             #writing to a file
             df_fit.to_csv(fit_file, index= True, sep=' ')
 
-        #4) Line fitting 2
+        #5-bis) Line fitting 2
         if (line_fitting == True and cat_band_fit == False):
             fit_file = result_line_fitting_dir+'/'+spectra_list_name+'_fit_data_' +timestamp + '.dat'
             fit_id = ['#Spectrum', 'line_wave']
@@ -5407,7 +5389,7 @@ while True:
             df_fit.to_csv(fit_file, index= True, sep=' ')
 
 
-        #5) kinematics with ppxf
+        #6) kinematics with ppxf
         if (perform_kinematics == True):
             kin_file = result_ppxf_kin_data_dir+'/'+spectra_list_name+'_kin_data_' +timestamp + '.dat'
             kin_id = ['#Spectrum', 'RV(km/s)', 'Sigma(km/s)', 'H3', 'H4', 'errRV','errSigma', 'errH3','errH4']
@@ -5431,7 +5413,7 @@ while True:
             df_kin.to_csv(kin_file, index= True, sep=' ')
 
 
-        #6) Stellar populations with ppxf
+        #7) Stellar populations with ppxf
         if (stellar_pop == True):
             pop_file = result_ppxf_pop_data_dir+'/'+spectra_list_name+'_pop_data_' +timestamp + '.dat'
             pop_id = ['#Spectrum', 'RV(km/s)', 'Sigma(km/s)', 'H3', 'H4', 'lum_age(Gyr)','lum_met(dex)', 'err_lum_age(Gyr)', 'err_lum_met(dex)', 'M/L', 'mass_age(Gyr)', 'mass_met(dex)', 'err_mass_age(Gyr)', 'err_mass_met(dex)', 'Chi2']
@@ -5461,15 +5443,39 @@ while True:
             df_pop.to_csv(pop_file, index= True, sep=' ')
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#***********************************************************************************************
 #***********************************************************************************************
 # *************************** cycle for all the spectra! ***************************************
         for i in range(spectra_number):
 
             print (spec_names_nopath[i])
 
-            # 1) read the spectra
+            # 1) READ THE SPECTRA
             wavelength, flux, original_step, obj_name = span.read_spec(spec_names[i], lambda_units)
-
+            wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
 
             #**************** spectra pre-processing
 
@@ -5479,7 +5485,8 @@ while True:
             except:
                 print ('Something went wrong')
 
-        # cropping
+
+        # 1) CROPPING
             if cropping_spectrum == True:
                 task_done2 = 1
                 task_spec2 = 1
@@ -5518,8 +5525,12 @@ while True:
                     plt.savefig(result_plot_dir + '/'+ 'cropped_' + spec_names_nopath[i] + '.eps', format='eps', dpi=300)
                     plt.close()
 
+                #putting the NEW limit range of the spectra
+                wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
 
-            #sigma clipping
+
+
+            # 2) DYNAMIC CLEANING
             if sigma_clipping == True and sigma_clip_have_file == False:
                 task_done2 = 1
                 task_spec2 = 1
@@ -5575,15 +5586,15 @@ while True:
 
                 #check if the data in the file are ok
                 if i == 0:
-                    shit_file = 0
+                    bad_file = 0
                     try:
                         sigma_clip_resolution = np.loadtxt(sigma_clip_sigma_file, usecols =[1])
                         sigma_clip_vel_value = np.loadtxt(sigma_clip_sigma_file, usecols =[2])
                     except ValueError:
-                        shit_file = 1
+                        bad_file = 1
 
                 #if they are NOT ok
-                if shit_file == 1:
+                if bad_file == 1:
                     if i == 0:
                         sg.popup ('Input sigma clip data file not valid!')
                     continue
@@ -5595,7 +5606,7 @@ while True:
                     continue
 
                 #doing the calculation only if the file is ok
-                if shit_file == 0:
+                if bad_file == 0:
 
                     clip_wavelength, clip_flux = span.sigma_clip(wavelength, flux, clip_factor, sigma_clip_resolution[i], sigma_clip_vel_value[i])
 
@@ -5629,6 +5640,8 @@ while True:
                         plt.close()
 
 
+
+            # 3) WAVELET CLEANING
             if wavelet_cleaning == True:
                 task_done2 = 1
                 task_spec2 = 1
@@ -5660,372 +5673,9 @@ while True:
                     plt.close()
                 #continue
 
-            # 2) rebinning linear
-            if rebinning == True and rebinning_linear == True:
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running rebin linear task...')
 
-                rebinned_wave, rebinned_flux, npoints = span.resample(wavelength, flux, usr_step_linear)
-                wavelength = rebinned_wave
-                flux = rebinned_flux
 
-                #writing file
-                if (save_intermediate_files == True):
-                    file_rebinned = result_spec+'rebin_lin_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_rebinned, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_rebinned)
-                    print('')
-
-            # 2)bis rebinning log
-            if (rebinning == True and rebinning_log == True):
-                task_done2 = 1
-                task_spec2 = 1
-
-                if i == 0:
-                    print ('Running log rebin task...')
-
-                rebinned_wave_log, rebinned_flux_log = span.log_rebin(wavelength, flux, usr_step_log)
-                wavelength = rebinned_wave_log
-                flux = rebinned_flux_log
-
-                #writing file
-                if (save_intermediate_files == True):
-                    file_rebinned_log = result_spec+'rebin_log_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_rebinned_log, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_rebinned_log)
-                    print('')
-
-            # 3) Dopcor
-            #dopcor, for process all
-            if (dop_cor == True and dop_cor_single_shot == False):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running doppler correction task...')
-
-                #test if file file exist
-                if i == 0:
-                    cond = (os.path.isfile(dop_cor_file))
-                if cond == False:
-                    if i == 0:
-                        sg.popup('The doppler correction file does not exist. I will skip it...')
-                    continue
-
-                #check if the data in the file are ok
-                if i == 0:
-                    shit_file = 0
-                    try:
-                        dopcor_values = np.loadtxt(dop_cor_file, usecols=[1])
-                    except ValueError:
-                        shit_file = 1
-
-                #if they are not ok:
-                if shit_file == 1:
-                    if i == 0:
-                        sg.popup ('Input dopcor data file not valid!')
-                    continue
-
-                #check on the length of the file
-                if len(dopcor_values) != spectra_number:
-                    if i == 0:
-                        sg.popup ('The dopcor file does not have the same length of the spectra list file')
-                    continue
-
-                #doing the calculation only if the file is ok
-                if shit_file == 0:
-                    dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dopcor_values[i])
-                    wavelength = dopcor_wave
-                    flux = dopcor_flux
-                    #output to see if the names and values match
-                    print(spec_names_nopath[i], dopcor_values[i])
-
-                    #writing to file
-                    if (save_intermediate_files == True):
-                        file_dopcor = result_spec+'dopcor_' + spec_names_nopath[i] + '.dat'
-                        np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                        print ('File saved: ', file_dopcor)
-                        print('')
-
-            #to calculate also with just one value
-            elif(dop_cor == True and dop_cor_single_shot == True):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running doppler correction task...')
-                dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dop_cor_single_shot_vel)
-                wavelength = dopcor_wave
-                flux = dopcor_flux
-                #output to see if the names and values match
-                print(spec_names_nopath[i], dop_cor_single_shot_vel)
-
-                #writing to file
-                if (save_intermediate_files == True):
-                    file_dopcor = result_spec+'dopcor_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_dopcor)
-                    print('')
-
-
-
-            #putting the limit range of the spectra
-            wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
-
-            # 4) Heliocentric correction
-            if (helio_corr == True and helio_single_shot == False):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running heliocentric correction task...')
-
-                #test if file file exist
-                if i == 0:
-                    cond2 = (os.path.isfile(helio_file))
-                if cond2 == False:
-                    if i == 0:
-                        sg.popup('The heliocentric file correction does not exist. I will skip it...')
-                    continue
-
-                #load the file
-                #the string part
-                if cond2 == True:
-                    location, date = np.loadtxt(helio_file, dtype = 'str', usecols=[0,1]).T
-                #the numbers
-                if i == 0:
-                    shit_file = 0
-                    go_conditions = 0
-                    try:
-                        ra, dec = np.loadtxt(helio_file, usecols=[2,3]).T
-                    except ValueError:
-                        shit_file = 1
-
-                if shit_file == 1:
-                    if i == 0:
-                        sg.popup ('Input data not valid!')
-                    continue
-
-
-                #Checking if the loaded data are ok. Canoot do before because otherwise the control will be performed even when I don't press the correct button
-                if  i == 0:
-                    coord_not_valid = 0
-                    date_not_valid  = 0
-                    location_not_valid = 0
-
-                    for s in range(len(location)):
-                        try:
-                            datetime.datetime.strptime(date[s], '%Y-%m-%d')
-                        except ValueError:
-                            date_not_valid = 1
-                            continue
-                        try:
-                            location_test = EarthLocation.of_site(location[s])
-                        except Exception:
-                            location_not_valid = 1
-                            continue
-
-                if (date_not_valid == 1 or location_not_valid == 1):
-                    if i == 0:
-                        sg.popup ('Data in the heliocentric file is not valid. Please check!')
-                    continue
-
-                #check on the length of the file
-                if len(location) != spectra_number:
-                    if i == 0:
-                        sg.popup ('The helio file does not have the same length of the spectra file')
-                    continue
-
-                if i == 0:
-                    go_conditions = shit_file+date_not_valid+location_not_valid
-
-                if go_conditions == 0:
-                    correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, date[i], location[i], ra[i], dec[i])
-                    wavelength = new_wavelength
-                    flux = new_flux
-                    #output
-                    print (spec_names_nopath[i], date[i], location[i], ra[i],dec[i], correction, 'km/s')
-                    print ('')
-
-                    #writing to a file
-                    if (save_intermediate_files == True):
-                        file_heliocorr = result_spec+'heliocorr_' + spec_names_nopath[i] + '.dat'
-                        np.savetxt(file_heliocorr, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                        print ('File saved: ', file_heliocorr)
-                        print('')
-
-            elif(helio_corr == True and helio_single_shot == True):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running heliocentric correction task...')
-
-                correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj)
-                wavelength = new_wavelength
-                flux = new_flux
-                #output
-                print (spec_names_nopath[i], helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj, correction, 'km/s')
-                print ('')
-
-                #writing to a file
-                if (save_intermediate_files == True):
-                    file_heliocorr = result_spec+'heliocorr_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_heliocorr, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_heliocorr)
-                    print('')
-
-
-
-
-#************************************** SPECTRA PROCESSING *************************
-            # 5) Degrade the resolution if I want to degrade the resolution
-
-            #1) DEGRADE FROM R TO R
-            if degrade == True and is_initial_res_r == True and res_degrade_to_r == True:
-
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running degrade resolution task...')
-
-                degraded_wave, degraded_flux = span.degrade(wavelength, flux, initial_res_r, final_res_r, True)
-                wavelength = degraded_wave
-                flux = degraded_flux
-
-                if save_intermediate_files == True:
-                    degraded_res = str(int(round(final_res_r)))
-                    file_degraded = result_spec+'degraded_R' + degraded_res + '_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_degraded, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_degraded)
-                    print('')
-
-
-            #2) DEGRADE FROM R TO FWHM
-            if degrade == True and is_initial_res_r == True and res_degrade_to_fwhm == True:
-                task_done2 = 1
-                task_spec2 = 1
-
-                if i == 0:
-                    print ('Running degrade resolution task...')
-
-                degraded_wave, degraded_flux = span.degradeRtoFWHM(wavelength, flux, initial_res_r, final_res_r_to_fwhm)
-                wavelength = degraded_wave
-                flux = degraded_flux
-
-                if save_intermediate_files == True:
-                    degraded_res_R_to_FWHM = str(float(round(final_res_r_to_fwhm,1)))
-                    file_degraded_R_to_FWHM = result_spec+'degraded_FWHM' + degraded_res_R_to_FWHM + '_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_degraded_R_to_FWHM, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_degraded_R_to_FWHM)
-                    print('')
-
-
-
-            #3) DEGRADE FROM FWHM TO FWHM
-            if degrade == True and is_initial_res_fwhm == True:
-
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running degrade resolution in lambda task...')
-
-                degraded_wave, degraded_flux = span.degrade_lambda(wavelength, flux, initial_res_fwhm, final_res_fwhm)
-                #update the variables. necessary because I will use always wavelength and flux for the other functions!
-                wavelength = degraded_wave
-                flux = degraded_flux
-
-                if save_intermediate_files == True:
-                    degraded_res_lambda = str(float(round(final_res_fwhm,1)))
-                    file_degraded_lambda = result_spec+'degraded_FWHM' + degraded_res_lambda + '_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_degraded_lambda, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_degraded_lambda)
-                    print('')
-
-
-            # 6) normalizig to a lambda
-            if normalize_wave == True:
-                task_done2 = 1
-                task_spec2 = 1
-                            #check the limits
-                if (norm_lambda < wave_limits[0] or norm_lambda > wave_limits[1]):
-                    print('Normalisation wavelength exceeds the range of the spectrum! Skipping')
-                    #continue
-                else:
-                    if i == 0:
-                        print ('Running normalise task...')
-
-                    step = wavelength[1]-wavelength[0]
-                    epsilon_norm = step*10. #averaging on 10 steps values, rather than one value
-                    norm_flux = span.norm_spec(wavelength, flux, norm_lambda, epsilon_norm, flux)
-                    flux = norm_flux
-
-                    if (save_intermediate_files == True):
-                        norm_suffix = str(norm_lambda)
-                        file_normalized = result_spec+'norm' + norm_suffix + '_' + spec_names_nopath[i] + '.dat'
-                        np.savetxt(file_normalized, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                        print ('File saved: ', file_normalized)
-                        print('')
-
-            # 7) continuum modelling
-            if continuum_sub == True:
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running continuum subtraction task...')
-
-                if cont_model_filtering == True:
-                    #print (cont_math_operation)
-                    corrected_flux, continuum_flux = span.sub_cont(wavelength, flux, cont_math_operation)
-
-                if cont_model_poly == True:
-                    corrected_flux, continuum_flux = span.continuum(wavelength, flux, cont_want_to_maks, cont_mask_ranges, cont_poly_degree, cont_math_operation, False)
-
-                flux = corrected_flux
-
-                if (save_intermediate_files == True):
-                    file_cont_sub = result_spec+'cont_sub_' + spec_names_nopath[i] + '.dat'
-                    file_cont = result_spec+'cont_' + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_cont_sub, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    np.savetxt(file_cont, np.column_stack([wavelength, continuum_flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_cont)
-                    print('')
-
-            # 8) sigma broadening
-            if (sigma_broad == True):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running sigma broadening task...')
-
-                broadened_flux = span.sigma_broad(wavelength, flux, sigma_value)
-                flux = broadened_flux
-
-                if (save_intermediate_files == True):
-                    broad_suffix = str(int(round(sigma_value)))
-                    file_broad = result_spec+'broad' + broad_suffix + spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_broad, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_broad)
-                    print('')
-
-            # 9) adding noise
-            if (add_noise == True):
-                task_done2 = 1
-                task_spec2 = 1
-                if i == 0:
-                    print ('Running add noise task...')
-
-                noisy_flux = span.add_noise(wavelength, flux, noise)
-                flux = noisy_flux
-
-                if (save_intermediate_files == True):
-                    noise_suffix = str(int(round(noise)))
-                    file_noise = result_spec+'SNR' + noise_suffix +'_'+ spec_names_nopath[i] + '.dat'
-                    np.savetxt(file_noise, np.column_stack([wavelength, flux]), header="wavelength \t flux")
-                    print ('File saved: ', file_noise)
-                    print('')
-
-            # 10) Denoising
-
-            #Denoising
+            # 4) FILTERING AND DENOISING
             if (filter_denoise == True):
                 task_done2 = 1
                 task_spec2 = 1
@@ -6061,6 +5711,393 @@ while True:
                     print('')
 
 
+
+            # 5) DOPPLER CORRECTION
+            #dopcor, for process all
+            if (dop_cor == True and dop_cor_single_shot == False):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running doppler correction task...')
+
+                #test if file file exist
+                if i == 0:
+                    cond = (os.path.isfile(dop_cor_file))
+                if cond == False:
+                    if i == 0:
+                        sg.popup('The doppler correction file does not exist. I will skip it...')
+                    continue
+
+                #check if the data in the file are ok
+                if i == 0:
+                    bad_file = 0
+                    try:
+                        dopcor_values = np.loadtxt(dop_cor_file, usecols=[1])
+                    except ValueError:
+                        bad_file = 1
+
+                #if they are not ok:
+                if bad_file == 1:
+                    if i == 0:
+                        sg.popup ('Input dopcor data file not valid!')
+                    continue
+
+                #check on the length of the file
+                if len(dopcor_values) != spectra_number:
+                    if i == 0:
+                        sg.popup ('The dopcor file does not have the same length of the spectra list file')
+                    continue
+
+                #doing the calculation only if the file is ok
+                if bad_file == 0:
+                    dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dopcor_values[i])
+                    wavelength = dopcor_wave
+                    flux = dopcor_flux
+                    #output to see if the names and values match
+                    print(spec_names_nopath[i], dopcor_values[i])
+
+                    #writing to file
+                    if (save_intermediate_files == True):
+                        file_dopcor = result_spec+'dopcor_' + spec_names_nopath[i] + '.dat'
+                        np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                        print ('File saved: ', file_dopcor)
+                        print('')
+
+                #putting the NEW limit range of the spectra
+                wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
+
+            #to calculate also with just one value
+            elif(dop_cor == True and dop_cor_single_shot == True):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running doppler correction task...')
+                dopcor_wave, dopcor_flux = span.dopcor(wavelength, flux, dop_cor_single_shot_vel)
+                wavelength = dopcor_wave
+                flux = dopcor_flux
+                #output to see if the names and values match
+                print(spec_names_nopath[i], dop_cor_single_shot_vel)
+
+                #writing to file
+                if (save_intermediate_files == True):
+                    file_dopcor = result_spec+'dopcor_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_dopcor, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_dopcor)
+                    print('')
+
+                #putting the NEW limit range of the spectra
+                wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
+
+
+
+            # 6) HELIOCENTRIC CORRECTION
+            if (helio_corr == True and helio_single_shot == False):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running heliocentric correction task...')
+
+                #test if file file exist
+                if i == 0:
+                    cond2 = (os.path.isfile(helio_file))
+                if cond2 == False:
+                    if i == 0:
+                        sg.popup('The heliocentric file correction does not exist. I will skip it...')
+                    continue
+
+                #load the file
+                #the string part
+                if cond2 == True:
+                    location, date = np.loadtxt(helio_file, dtype = 'str', usecols=[0,1]).T
+                #the numbers
+                if i == 0:
+                    bad_file = 0
+                    go_conditions = 0
+                    try:
+                        ra, dec = np.loadtxt(helio_file, usecols=[2,3]).T
+                    except ValueError:
+                        bad_file = 1
+
+                if bad_file == 1:
+                    if i == 0:
+                        sg.popup ('Input data not valid!')
+                    continue
+
+
+                #Checking if the loaded data are ok. Canoot do before because otherwise the control will be performed even when I don't press the correct button
+                if  i == 0:
+                    coord_not_valid = 0
+                    date_not_valid  = 0
+                    location_not_valid = 0
+
+                    for s in range(len(location)):
+                        try:
+                            datetime.datetime.strptime(date[s], '%Y-%m-%d')
+                        except ValueError:
+                            date_not_valid = 1
+                            continue
+                        try:
+                            location_test = EarthLocation.of_site(location[s])
+                        except Exception:
+                            location_not_valid = 1
+                            continue
+
+                if (date_not_valid == 1 or location_not_valid == 1):
+                    if i == 0:
+                        sg.popup ('Data in the heliocentric file is not valid. Please check!')
+                    continue
+
+                #check on the length of the file
+                if len(location) != spectra_number:
+                    if i == 0:
+                        sg.popup ('The helio file does not have the same length of the spectra file')
+                    continue
+
+                if i == 0:
+                    go_conditions = bad_file+date_not_valid+location_not_valid
+
+                if go_conditions == 0:
+                    correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, date[i], location[i], ra[i], dec[i])
+                    wavelength = new_wavelength
+                    flux = new_flux
+
+                    #putting the NEW limit range of the spectra
+                    wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
+                    #output
+                    print (spec_names_nopath[i], date[i], location[i], ra[i],dec[i], correction, 'km/s')
+                    print ('')
+
+                    #writing to a file
+                    if (save_intermediate_files == True):
+                        file_heliocorr = result_spec+'heliocorr_' + spec_names_nopath[i] + '.dat'
+                        np.savetxt(file_heliocorr, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                        print ('File saved: ', file_heliocorr)
+                        print('')
+
+            elif(helio_corr == True and helio_single_shot == True):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running heliocentric correction task...')
+
+                correction, new_wavelength, new_flux = span.helio_corr(wavelength, flux, helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj)
+                wavelength = new_wavelength
+                flux = new_flux
+                #output
+                print (spec_names_nopath[i], helio_single_shot_date, helio_single_shot_location, ra_obj, dec_obj, correction, 'km/s')
+                print ('')
+
+                #putting the NEW limit range of the spectra
+                wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
+
+                #writing to a file
+                if (save_intermediate_files == True):
+                    file_heliocorr = result_spec+'heliocorr_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_heliocorr, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_heliocorr)
+                    print('')
+
+
+
+
+
+#************************************** SPECTRA PROCESSING *************************
+
+            # 1) REBIN
+                #a) linear
+            if rebinning == True and rebinning_linear == True:
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running rebin linear task...')
+
+                rebinned_wave, rebinned_flux, npoints = span.resample(wavelength, flux, usr_step_linear)
+                wavelength = rebinned_wave
+                flux = rebinned_flux
+
+                #writing file
+                if (save_intermediate_files == True):
+                    file_rebinned = result_spec+'rebin_lin_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_rebinned, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_rebinned)
+                    print('')
+
+                #b) log
+            if (rebinning == True and rebinning_log == True):
+                task_done2 = 1
+                task_spec2 = 1
+
+                if i == 0:
+                    print ('Running log rebin task...')
+
+                rebinned_wave_log, rebinned_flux_log = span.log_rebin(wavelength, flux, usr_step_log)
+                wavelength = rebinned_wave_log
+                flux = rebinned_flux_log
+
+                #writing file
+                if (save_intermediate_files == True):
+                    file_rebinned_log = result_spec+'rebin_log_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_rebinned_log, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_rebinned_log)
+                    print('')
+
+
+
+            # 2) DEGRADE RESOLUTION
+                #a) DEGRADE FROM R TO R
+            if degrade == True and is_initial_res_r == True and res_degrade_to_r == True:
+
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running degrade resolution task...')
+
+                degraded_wave, degraded_flux = span.degrade(wavelength, flux, initial_res_r, final_res_r, True)
+                wavelength = degraded_wave
+                flux = degraded_flux
+
+                if save_intermediate_files == True:
+                    degraded_res = str(int(round(final_res_r)))
+                    file_degraded = result_spec+'degraded_R' + degraded_res + '_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_degraded, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_degraded)
+                    print('')
+
+
+                #b) DEGRADE FROM R TO FWHM
+            if degrade == True and is_initial_res_r == True and res_degrade_to_fwhm == True:
+                task_done2 = 1
+                task_spec2 = 1
+
+                if i == 0:
+                    print ('Running degrade resolution task...')
+
+                degraded_wave, degraded_flux = span.degradeRtoFWHM(wavelength, flux, initial_res_r, final_res_r_to_fwhm)
+                wavelength = degraded_wave
+                flux = degraded_flux
+
+                if save_intermediate_files == True:
+                    degraded_res_R_to_FWHM = str(float(round(final_res_r_to_fwhm,1)))
+                    file_degraded_R_to_FWHM = result_spec+'degraded_FWHM' + degraded_res_R_to_FWHM + '_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_degraded_R_to_FWHM, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_degraded_R_to_FWHM)
+                    print('')
+
+
+                #c) DEGRADE FROM FWHM TO FWHM
+            if degrade == True and is_initial_res_fwhm == True:
+
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running degrade resolution in lambda task...')
+
+                degraded_wave, degraded_flux = span.degrade_lambda(wavelength, flux, initial_res_fwhm, final_res_fwhm)
+                #update the variables. necessary because I will use always wavelength and flux for the other functions!
+                wavelength = degraded_wave
+                flux = degraded_flux
+
+                if save_intermediate_files == True:
+                    degraded_res_lambda = str(float(round(final_res_fwhm,1)))
+                    file_degraded_lambda = result_spec+'degraded_FWHM' + degraded_res_lambda + '_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_degraded_lambda, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_degraded_lambda)
+                    print('')
+
+
+
+            # 3) NORMALISE SPECTRUM TO
+            if normalize_wave == True:
+                task_done2 = 1
+                task_spec2 = 1
+                            #check the limits
+                if (norm_lambda < wave_limits[0] or norm_lambda > wave_limits[1]):
+                    print('Normalisation wavelength exceeds the range of the spectrum! Skipping')
+                    #continue
+                else:
+                    if i == 0:
+                        print ('Running normalise task...')
+
+                    step = wavelength[1]-wavelength[0]
+                    epsilon_norm = step*10. #averaging on 10 steps values, rather than one value
+                    norm_flux = span.norm_spec(wavelength, flux, norm_lambda, epsilon_norm, flux)
+                    flux = norm_flux
+
+                    if (save_intermediate_files == True):
+                        norm_suffix = str(norm_lambda)
+                        file_normalized = result_spec+'norm' + norm_suffix + '_' + spec_names_nopath[i] + '.dat'
+                        np.savetxt(file_normalized, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                        print ('File saved: ', file_normalized)
+                        print('')
+
+
+
+            # 4) SIGMA BROADENING
+            if (sigma_broad == True):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running sigma broadening task...')
+
+                broadened_flux = span.sigma_broad(wavelength, flux, sigma_value)
+                flux = broadened_flux
+
+                if (save_intermediate_files == True):
+                    broad_suffix = str(int(round(sigma_value)))
+                    file_broad = result_spec+'broad' + broad_suffix + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_broad, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_broad)
+                    print('')
+
+
+
+            # 5) ADD NOISE
+            if (add_noise == True):
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running add noise task...')
+
+                noisy_flux = span.add_noise(wavelength, flux, noise)
+                flux = noisy_flux
+
+                if (save_intermediate_files == True):
+                    noise_suffix = str(int(round(noise)))
+                    file_noise = result_spec+'SNR' + noise_suffix +'_'+ spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_noise, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_noise)
+                    print('')
+
+
+
+            # 6) CONTINUUM MODELLING
+            if continuum_sub == True:
+                task_done2 = 1
+                task_spec2 = 1
+                if i == 0:
+                    print ('Running continuum subtraction task...')
+
+                if cont_model_filtering == True:
+                    #print (cont_math_operation)
+                    corrected_flux, continuum_flux = span.sub_cont(wavelength, flux, cont_math_operation)
+
+                if cont_model_poly == True:
+                    corrected_flux, continuum_flux = span.continuum(wavelength, flux, cont_want_to_maks, cont_mask_ranges, cont_poly_degree, cont_math_operation, False)
+
+                flux = corrected_flux
+
+                if (save_intermediate_files == True):
+                    file_cont_sub = result_spec+'cont_sub_' + spec_names_nopath[i] + '.dat'
+                    file_cont = result_spec+'cont_' + spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_cont_sub, np.column_stack([wavelength, flux]), header="wavelength \t flux")
+                    np.savetxt(file_cont, np.column_stack([wavelength, continuum_flux]), header="wavelength \t flux")
+                    print ('File saved: ', file_cont_sub)
+                    print ('File saved: ', file_cont)
+                    print('')
+
+
+
+
 #******************************************* SPEC MATH ********************************************
 
             if do_nothing == False or use_for_spec_an == True:
@@ -6068,7 +6105,7 @@ while True:
                     sg.popup('Mean and sum of all the spectra require click on process selected')
                 continue
 
-            # 15) subtract normalized average
+            # 1) subtract normalized average
             if (subtract_normalized_avg == True):
                 task_done2 = 1
                 task_spec2 = 1
@@ -6084,7 +6121,8 @@ while True:
                     print ('File saved: ', file_subtracted_avg)
                     print('')
 
-            # 16) subtract normalized single
+
+            # 2) subtract normalized single
             if (subtract_normalized_spec == True):
                 task_done2 = 1
                 task_spec2 = 1
@@ -6109,7 +6147,8 @@ while True:
                         print ('File saved: ', file_subtracted_single)
                         print('')
 
-            # 17) add pedestal
+
+            # 3) add pedestal
             if (add_pedestal == True):
                 task_done2 = 1
                 task_spec2 = 1
@@ -6125,7 +6164,8 @@ while True:
                     print ('File saved: ', file_pedestal)
                     print('')
 
-            # 18) multiply by a constant
+
+            # 4) multiply by a constant
             if (multiply == True):
                 task_done2 = 1
                 task_spec2 = 1
@@ -6152,6 +6192,7 @@ while True:
 
 #************************************** SPECTRAL ANALYSIS ********************************
 
+            #1) BLACKBODY FITTING
             if (bb_fit == True):
                 task_done2 = 1
                 #task_analysis = 1
@@ -6182,7 +6223,9 @@ while True:
                         print ('File saved: ', bb_file)
                         print('')
 
-            # 19) Cross correction
+
+
+            # 2) CROSS-CORRELATION
             if (cross_corr == True):
                 task_done2 = 1
                 cond11 = (os.path.isfile(template_crosscorr))
@@ -6243,7 +6286,8 @@ while True:
                             plt.close()
 
 
-            # 20) Sigma measurement
+
+            # 3) VELOCITY DISPERSION
             if (sigma_measurement == True):
                 task_done2 = 1
                 cond22 = (os.path.isfile(template_sigma))
@@ -6308,8 +6352,10 @@ while True:
                                 plt.savefig(result_plot_dir + '/'+ 'sigma_vel_' + spec_names_nopath[i] + '.eps', format='eps', dpi=100)
                                 plt.close()
 
-            # 21) EW measurements
-            #1) If I want to measure just one index
+
+
+            # 4) EQUIVALENT WIDTH (EW)
+                #a) If I want to measure just one index
             if (ew_measurement == True and single_index == True):
                 task_done2 = 1
                 if i == 0:
@@ -6350,7 +6396,7 @@ while True:
                         print ('File SNR saved: ', snr_ew_file)
                         print('')
 
-            #2) If I have an index list file
+                #b) If I have an index list file
             if (ew_measurement == True and have_index_file == True):
                 task_done2 = 1
                 #the existence condition has been set before
@@ -6391,7 +6437,7 @@ while True:
                     print('')
 
 
-            #3) If I want to measure the Lick/IDS indices
+                #c) If I want to measure the Lick/IDS indices
             if (ew_measurement == True and lick_ew == True):
                 task_done2 = 1
 
@@ -6501,9 +6547,6 @@ while True:
                             sigma_lick_ppxf = (kinematics_lick[0])
                             sigma_to_correct_lick = sigma_lick_ppxf[1]
 
-
-
-
                     # 3) degrading the resolution, only if smaller than the lick system
                     if lick_constant_fwhm == True and spec_lick_res_fwhm < 8.4:
                         lick_degraded_wavelength, lick_degraded_flux = span.degrade_to_lick(lick_wavelength, lick_flux, spec_lick_res_fwhm, lick_constant_fwhm)
@@ -6513,8 +6556,6 @@ while True:
                         print('WARNING: The resolution of the spectrum is smaller than the one needed for the Lick/IDS system. I will still calculate the Lick/IDS indices but the results might be inaccurate.')
                         lick_degraded_wavelength = lick_wavelength
                         lick_degraded_flux = lick_flux
-
-
 
                     # 4) Measuring the EW and doing plot
                     id_lick_array, ew_lick_array, err_lick_array, snr_lick_ew_array, ew_lick_array_mag, err_lick_array_mag = span.ew_measurement(lick_degraded_wavelength, lick_degraded_flux, lick_index_file, False, False, True, True, save_plot, spec_names_nopath[i], True)
@@ -6532,7 +6573,6 @@ while True:
                     print ('SNR: ')
                     print (np.round(snr_lick_ew_array), ' per pix')
                     print('')
-
 
                     # 5) Correcting the EW for sigma
                     # a) Correcting the EWs for a single value
@@ -6571,7 +6611,6 @@ while True:
                             ew_lick_array_mag = corrected_lick_ew_mag_array
                             err_lick_array_mag = corrected_lick_err_mag_array
 
-
                     # c) Automatic correcting the EWs
                     if correct_ew_sigma == True and radio_lick_sigma_auto == True:
                         corrected_lick_ew_array, corrected_lick_err_array, corrected_lick_ew_mag_array, corrected_lick_err_mag_array = span.corr_ew_lick(ew_lick_array, err_lick_array, ew_lick_array_mag, sigma_lick_coeff_file, sigma_to_correct_lick)
@@ -6594,22 +6633,16 @@ while True:
                         err_lick_array_mag = 0.434*abs(err_lick_array/ew_lick_array)
                         err_lick_array_mag = np.nan_to_num(err_lick_array_mag, nan=0)
 
-
-
                     #filling the file
                     for k in range(num_lick_indices):
                         df_ew_lick.at[i,ew_lick_id[k+len(spectra_lick_id)]]= round(ew_lick_array[k], 4)
                         df_ew_lick.at[i,ew_lick_id[k+num_lick_indices+ len(spectra_lick_id)]] = round(err_lick_array[k],4)
-
                         df_ew_lick.to_csv(ew_lick_file, index= False, sep=' ')
-
                         df_ew_lick_mag.at[i,ew_lick_id_mag[k+len(spectra_lick_id)]]= round(ew_lick_array_mag[k], 4)
                         df_ew_lick_mag.at[i,ew_lick_id_mag[k+num_lick_indices+ len(spectra_lick_id)]] = round(err_lick_array_mag[k],4)
                         df_ew_lick_mag.to_csv(ew_lick_file_mag, index= False, sep=' ')
-
                         df_snr_lick_ew.at[i,snr_lick_ew_id[k+len(spectra_lick_id)]]= round(snr_lick_ew_array[k], 4)
                         df_snr_lick_ew.to_csv(snr_lick_ew_file, index= False, sep=' ')
-
 
                     #creating new indices to save in a file for SSP interpolation
                     Hbeta.append(ew_lick_array[0])
@@ -6623,7 +6656,7 @@ while True:
                     Fe5335.append(ew_lick_array[4])
                     Fe5335e.append(err_lick_array[4])
 
-
+                    # interpolation with models
                     if stellar_parameters_lick == True:
                         if i == 0:
                             ssp_model = np.loadtxt(lick_ssp_model, delimiter=' ')
@@ -6649,7 +6682,6 @@ while True:
                         MgFee_sp = np.sqrt((((Fe5270_sp*18/25+Fe5335_sp*7/25)/(2*np.sqrt(Mgb_sp*(Fe5270_sp*18/25+Fe5335_sp*7/25))))*Mgbe_sp)**2+((Mgb_sp*18/25/(2*np.sqrt(Mgb_sp*(Fe5270_sp*18/25+Fe5335_sp*7/25))))*Fe5270e_sp)**2+((Mgb_sp*7/25/(2*np.sqrt(Mgb_sp*(Fe5270_sp*18/25+Fe5335_sp*7/25))))*Fe5335e_sp)**2)
                         MgFee_sp = np.nan_to_num(MgFee_sp, nan=0)
 
-
                         #points to interpolate
                         points_for_param = np.column_stack((Hbeta_sp, MgFe_sp, Fem_sp, Mgb_sp))
 
@@ -6657,7 +6689,6 @@ while True:
                         age_oss = griddata((hb_teo, mgfe_teo, fem_teo, mgb_teo), age_teo, points_for_param, method='linear')
                         met_oss = griddata((hb_teo, mgfe_teo, fem_teo, mgb_teo), met_teo, points_for_param, method='linear')
                         alpha_oss = griddata((hb_teo, mgfe_teo, fem_teo, mgb_teo), alpha_teo, points_for_param, method='linear')
-
 
                         # CALCULATING THE ERRORS WITH MONTECARLO SIMULATIONS
                         sim_number = 50
@@ -6693,7 +6724,6 @@ while True:
                         err_age = np.std(age_sim)
                         err_met = np.std(met_sim)
                         err_alpha = np.std(alpha_sim)
-
 
                         #assigning variables
                         age = age_oss[0]
@@ -6835,9 +6865,9 @@ while True:
                     print('Nothing to show')
 
 
-            #22) Line fitting
 
-            #22a) CaT fitting
+            #5) LINE(S) FITTING
+                #a) CaT fitting
             if (line_fitting == True and cat_band_fit == True ):
                 task_done2 = 1
 
@@ -6977,8 +7007,7 @@ while True:
                         plt.close()
 
 
-
-            # b) line fitting user line
+                # b) line fitting user line
             if (line_fitting == True and cat_band_fit == False):
                 task_done2 = 1
 
@@ -7056,7 +7085,8 @@ while True:
                         plt.close()
 
 
-            #kinematics with ppxf
+
+            # 6) KINEMATICS WITH PPXF
             if (perform_kinematics == True):
                 task_done2 = 1
 
@@ -7129,7 +7159,6 @@ while True:
                             h3_string = str(h3)
                             h4_string = str(h4)
                             plt.title('v = '+ vel_string + ' km/s.  Sigma = '+ sigma_string + ' km/s.  H3 = ' + h3_string + '.  H4 = ' + h4_string)
-
                             plt.savefig(result_plot_dir + '/'+ 'kin_ppxf_' + spec_names_nopath[i] + '.eps',         format='eps', dpi=100)
                             plt.clf()
                             plt.close()
@@ -7141,7 +7170,7 @@ while True:
 
 
 
-            #stellar populations with ppxf
+            # 7) STELLAR POPULATIONS WITH PPXF
             if (stellar_pop == True):
                 task_done2 = 1
 
@@ -7214,7 +7243,6 @@ while True:
                             print ('File saved: ', pop_file)
                             print('')
 
-
                         #saving the spectra residuals and the stellar template
                         #in case I don't have gas
                         #pop_suffix = str(int(round(window_size)))
@@ -7274,6 +7302,8 @@ while True:
                     except TypeError:
                         print ('Something went wrong')
 
+#************************************ END TASKS ***************************************************************
+#**************************************************************************************************************
 
             #progress meter
             cancel_cond = 0
@@ -7320,6 +7350,7 @@ while True:
 
 ##################  END EVENTS ON THE SPECTRA LIST LOADED ##################
 
+#***************** STARTING THE STANDALONE TASKS FOR SIGMA COEFF AND CORRECTION OF THE EW ****************
 
     if (sigma_corr_coeff == False and event == 'Compute!'):
         sg.popup ('Cannot compute until you activate the Sigma coeff determination task!')
@@ -7328,7 +7359,7 @@ while True:
         sg.popup ('Cannot correct until you activate the Correct EWs for sigma task!')
 
 
-    #sigma coefficients determination
+    # 8) SIGMA COEFF DETERMINATION
     if (event == 'Compute!' and sigma_corr_coeff == True):
         print ('test')
         #preparing the files to be saved
@@ -7399,8 +7430,6 @@ while True:
             df_coeff.to_csv(coeff_file, index= True, sep=' ')
 
 
-        #22) Correction coefficient determination. Must be outside the Process all cycle!
-
         #1) If I want to measure just one index
         if (sigma_corr_coeff == True and single_index_corr == True):
             task_done2 = 1
@@ -7456,8 +7485,6 @@ while True:
                 sg.popup ('The index file does not exist!')
                 continue
 
-
-
             cond666 = (os.path.isfile(stellar_spectra_coeff_file))
             if cond666 == False:
                 sg.popup('Stellar spectra file does not exist. Skipping...')
@@ -7508,7 +7535,9 @@ while True:
             print ('Error correction coefficients')
             print (err_coeff_array)
 
-    #23) Apply the correction coefficients to the EWs
+
+
+    #9) CORRECT EWS FOR SIGMA
     if (event == 'Correct!'):
         if correct_ew == True:
             task_done2 = 1
@@ -7522,8 +7551,6 @@ while True:
             if cond66 == False:
                 sg.popup('EW file does not exist. Skipping...')
                 continue
-
-
 
             cond88 = (os.path.isfile(sigma_vel_file))
             if cond88 == False:
@@ -7545,6 +7572,8 @@ while True:
             df.to_csv(results_ew, index= False, sep=' ')
             print('EWs corrected saved to ', results_ew)
             sg.popup ('Succeed!')
+
+#*********************************** END TASKS ******************************************
 
 
     # CREATING LICK IDS FILE FOR SSP
