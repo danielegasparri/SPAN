@@ -116,7 +116,7 @@ def save_settings(filename, keys, events, values):
             'wave_units_nm': values.get('wave_units_nm', True),
             'wave_units_a': values.get('wave_units_a', False),
             'wave_units_mu': values.get('wave_units_mu', False),
-            'listfile': values.get('listfile', False),
+            #'listfile': values.get('listfile', False),
             'show_hdr': values.get('show_hdr', False),
             'show_step': values.get('show_step', False),
             'show_res': values.get('show_res', False),
