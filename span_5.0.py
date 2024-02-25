@@ -510,9 +510,9 @@ layout = [
             ],font=("Helvetica", 9, 'bold')),
 
             #COMMENT THE FOLLOWING THREE LINES TO HAVE THE EXTERNAL OUTPUT
-            sg.Frame('Output', [
-            [sg.Output(size=(81, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
-            ] ,font=("Helvetica", 12, 'bold')),
+            #sg.Frame('Output', [
+            #[sg.Output(size=(81, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
+            #] ,font=("Helvetica", 12, 'bold')),
 
 
             ],
@@ -2991,6 +2991,7 @@ while True:
            #control whether the spectrum is really a spectrum or something else, maybe a list
             try:
                 wavelength, flux, step, name = span.read_spec(prev_spec, lambda_units)
+                wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
                 #prev_spec_nopath = Path(prev_spec).stem
                 prev_spec_nopath = os.path.splitext(os.path.basename(prev_spec))[0]
                 spec_name = [prev_spec_nopath, ' ' ]
@@ -3025,6 +3026,7 @@ while True:
     #every time I select a loaded spectrum and press plot, I read the spectrum and plot it!
     if event == 'Plot':
         wavelength, flux, step, name = span.read_spec(prev_spec, lambda_units)
+        wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
         plt.plot(wavelength, flux)
         plt.xlabel('Wavelength nm', fontsize = 9)
         plt.title(prev_spec_nopath)
@@ -3033,6 +3035,7 @@ while True:
 
     if event == 'Original spec.':
         wavelength, flux, step, name = span.read_spec(prev_spec, lambda_units)
+        wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
         plt.plot(wavelength, flux)
         plt.xlabel('Wavelength nm', fontsize = 9)
         plt.title(prev_spec_nopath)
@@ -3237,6 +3240,7 @@ while True:
 
                 #read the spectrum
                 wavelength, flux, step, name = span.read_spec(prev_spec, lambda_units)
+                wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
                 #original_wavelength = wavelength
                 #original_flux = flux
 
@@ -3277,6 +3281,7 @@ while True:
             for i in range(spectra_number):
                 #read the spectra
                 wavelength, flux, original_step, obj_name = span.read_spec(spec_names[i], lambda_units)
+                wave_limits = np.array([wavelength[0], wavelength[len(wavelength)-1]])
 
                 #convert the spectra
                 converted_flux = span.convert_flux(wavelength, flux, spec_names[i], type_to_convert, lambda_units)
@@ -3444,6 +3449,7 @@ while True:
         #reading the spectrum selected
         try:
             wavelength, flux, step, name = span.read_spec(prev_spec, lambda_units)
+            wave_limits = np.array([np.min(wavelength), np.max(wavelength)])
             original_wavelength = wavelength
             original_flux = flux
         except IndexError:
@@ -3991,7 +3997,7 @@ while True:
             print ('*** Blackbody fitting *** ')
 
             temperature_bb, residual_bb = span.blackbody_fit(wavelength, flux, wave1_bb, wave2_bb, t_guess, True)
-            print ('Best Black body temperature: ', temperature_bb, ' K')
+            print ('Best Black body temperature: ', int(temperature_bb), ' K')
             print ('')
 
 
@@ -4142,9 +4148,9 @@ while True:
 
             id_array, ew_array, err_array, snr_ew_array,ew_array_mag, err_array_mag = span.ew_measurement(wavelength, flux, index_usr, single_index, True, True, True, False, prev_spec, True)
             #err_array_mag= 0.434*abs(err_array/ew_array)
-            print ('EW:', ew_array, '+/-', err_array)
-            print ('EW Mag:', ew_array_mag, '+/-', err_array_mag)
-            print ('SNR:', snr_ew_array, 'per pix')
+            print ('EW:', round(ew_array,3), '+/-', round(err_array,3))
+            print ('EW Mag:', round(ew_array_mag,3), '+/-', round(err_array_mag,3))
+            print ('SNR:', int(snr_ew_array), 'per pix')
             print ('')
 
             #b) If I have an index list file
@@ -4188,9 +4194,9 @@ while True:
             else:
                 id_array, ew_array, err_array, snr_ew_array, ew_array_mag, err_array_mag = span.ew_measurement(wavelength, flux, index_file, single_index, False, True, True, save_plot, prev_spec_nopath,True)
             print (id_array)
-            print (ew_array)
-            print ('EW in Mag: ', ew_array)
-            print ('SNR: ', snr_ew_array, 'per pix')
+            print (np.round(ew_array,3))
+            print ('EW in Mag: ', np.round(ew_array,3))
+            print ('SNR: ', np.round(snr_ew_array), 'per pix')
 
             #c) If I want to measure the Lick/IDS indices
         if (ew_measurement == True and lick_ew == True and (event == 'Process selected' or event == 'Preview result')):
