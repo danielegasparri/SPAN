@@ -510,9 +510,9 @@ layout = [
             ],font=("Helvetica", 9, 'bold')),
 
             #COMMENT THE FOLLOWING THREE LINES TO HAVE THE EXTERNAL OUTPUT
-            #sg.Frame('Output', [
-            #[sg.Output(size=(81, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
-            #] ,font=("Helvetica", 12, 'bold')),
+            sg.Frame('Output', [
+            [sg.Output(size=(81, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
+            ] ,font=("Helvetica", 12, 'bold')),
 
 
             ],
