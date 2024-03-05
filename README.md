@@ -11,7 +11,7 @@ The program accepts ASCII and fits binary tables 1D spectra.
 SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
 
 The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, (E)MILES, GALAXEV and FSPS stellar libraries, and, in general, with the ESO standard for 1D spectra.
-The software DOES NOT accept ASCII spectra file with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E".
+The software DOES NOT accept ASCII spectra files with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E".
 
 Currently, SPAN reads only the wavelength and the flux, discarding the (potential) column with uncertainties.
 
@@ -46,15 +46,15 @@ It seems difficult, but don't worry: the button "Create spectra list" in the mai
 
 In this repository you can find example file lists in the example_files directory. They are:
 1) xshooter_vis_sample_list_spectra.dat, already preloaded in the main application (you just need to click "Load Spectra"), contains 5 spectra of the central regions of nearby galaxies observed with the VIS arm of ESO XShooter spectrograph at resolution of R = 5000. Wavelength units are in nm. Sampling is linear;
-2) NGC5320_bins.dat, ngc5806_bins.dat and ic3392_bins.dat contain the spatial bins of three spiral galaxies observed with the TNG telescope at resolution FWHM = 3.5 A, from 470 to 670 nm. Sampling is logarithmic and wavelengths are in log(A). SPAN will take care of everything: you just need to set "A" in the "Open Spectra" frame before clicking "Load";
+2) NGC5320_bins.dat, ngc5806_bins.dat and ic3392_bins.dat contain the spatial bins of three spiral galaxies observed with the TNG telescope at resolution FWHM = 3.5 A, from 470 to 670 nm. Sampling is logarithmic and wavelengths are in log(A). SPAN will take care of everything: you just need to set "A" in the "Open Spectra" frame before clicking "Load spectra";
 3) irtf_K-M_giants_list_spectra.dat contains a sample of 31 giants K and M stellar spectra of the IRTF library from 800 to 5000 nm. Sampling is logarithmic. Wavelength units are in 'mu', so you need to check the option "mu" in the "Open Spectra" frame befoce clicking "Load spectra".
 
 
 
 ****Quick start****
 
-If you want to compile the source code, install all the required packages and then type in the terminal: python3 span_5.0.py, then press the "Load spectra" button to load the example files. 
-The span_5.0_win.py file is the same program optimized (I hope) for Windows operating system, with just some minor graphical adjustments. Feel free to use the version that better adapts to your screen and machine settings.
+If you want to compile the source code, install all the required modules and then type in the terminal: python3 span_5.0.py, then press the "Load spectra" button to load the example files. 
+The span_5.0_win.py file is the same program optimized (I hope) for Windows operating systems, with just some minor graphical adjustments. Feel free to use the version that better adapts to your screen and machine settings.
 
 The spectra loaded will appear in the upper central frame (the white window). 
 Just select one spectrum with the mouse, then click "Plot" to see it. Close the plot to activate again the main panel. 
