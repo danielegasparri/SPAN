@@ -2042,7 +2042,7 @@ while True:
     if (event == 'ppxf kin parameters'):
         sg.theme('LightBlue1')
         ppxf_kin_layout = [
-            [sg.Text('Wavelength interval (nm):',font = ('Helvetica', 11, 'bold')), sg.InputText(wave1_kin, size = (5,1), key = 'left_wave_ppxf_kin'), sg.Text('-',font = ('Helvetica', 11, 'bold')), sg.InputText(wave2_kin, size = (5,1), key = 'right_wave_ppxf_kin'), sg.Text('Stellar library to use:',font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf_kin, key='markers_ppxf_kin', default_value=stellar_library_kin, readonly=True)],
+            [sg.Text('Wavelength interval (nm):',font = ('Helvetica', 11, 'bold')), sg.InputText(wave1_kin, size = (5,1), key = 'left_wave_ppxf_kin'), sg.Text('-',font = ('Helvetica', 11, 'bold')), sg.InputText(wave2_kin, size = (5,1), key = 'right_wave_ppxf_kin'), sg.Text('Model library to use:',font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf_kin, key='markers_ppxf_kin', default_value=stellar_library_kin, readonly=True)],
             [sg.HorizontalSeparator()],
             [sg.Radio('Spec. constant FWHM resolution (A):', "RADIORES1", default = constant_resolution_lambda, key = 'constant_resolution_lambda',tooltip='Instrumental resolution (FWHM) in A of the spectral region',font = ('Helvetica', 11, 'bold')), sg.InputText(resolution_kin , size = (4,1), key = 'ppxf_resolution'), sg.Radio('Spec. constant R resolution:', "RADIORES1", key = 'constant_resolution_r', default = constant_resolution_r,font = ('Helvetica', 11, 'bold')), sg.InputText(resolution_kin_r, size = (5,1), key = 'ppxf_resolution_r')],
             [sg.HorizontalSeparator()],
@@ -2108,7 +2108,7 @@ while True:
             [sg.Text('Regul. error:', font = ('Helvetica', 11, 'bold')), sg.InputText(regul_err, size = (4,1), key = 'regul_err'), sg.Text('Additive degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(additive_degree, size = (3,1), key = 'additive_degree'), sg.Text('Multiplicative degree:', font = ('Helvetica', 11, 'bold')), sg.InputText(multiplicative_degree, size = (3,1), key = 'multiplicative_degree')],
             #[sg.Text('', font = ('Helvetica', 1))],
             [sg.HorizontalSeparator()],
-            [sg.Text('Stellar library to use:', font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf, key='markers_ppxf',default_value=stellar_library, readonly=True), sg.Checkbox('Calculate errors for age and met', font = ('Helvetica', 11, 'bold'), key = 'ppxf_err_pop', default = with_errors,tooltip='Calculate the errors for age and met with MonteCarlo simulations')],
+            [sg.Text('Model library to use:', font = ('Helvetica', 11, 'bold')), sg.InputCombo(markers_ppxf, key='markers_ppxf',default_value=stellar_library, readonly=True), sg.Checkbox('Calculate errors for age and met', font = ('Helvetica', 11, 'bold'), key = 'ppxf_err_pop', default = with_errors,tooltip='Calculate the errors for age and met with MonteCarlo simulations')],
             [sg.Push(), sg.Button('Confirm',button_color= ('black','orange'), size = (18,1))]
             ]
 
