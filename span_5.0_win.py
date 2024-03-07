@@ -1,6 +1,7 @@
 #SPectral ANalysis software (SPAN).
 #Written by Daniele Gasparri#
 
+# THIS IS THE VERSION OPTIMIZED FOR WINDOWS SYSTEMS WITH AT LEAST 900 PIX SCREEN VERTICAL RESOLUTION
 
 """
     Copyright (C) 2018-2024, Daniele Gasparri
