@@ -20,7 +20,7 @@ Currently, SPAN reads only the wavelength and the flux, discarding the (potentia
 
 ****What do you need to run SPAN****
 
-- In order to run the source code, you need Python 3.X and the following libraries (some of them are installed by default, others will require: pip install <library>):
+- In order to run the source code, you need Python 3.X and the following modules (some of them are installed by default, others will require: pip install <module>):
     1) Pysimplegui (version >= 4.55. Please, check for updates)
     2) Astropy
     3) Pandas
