@@ -2971,7 +2971,7 @@ while True:
             continue
 
 
-        if (spec_names[0] == 0 and (event == 'Preview spec.' or event == 'Process selected' or event == 'Show info' or event == 'Preview result' or event == 'Process all' or event == 'Plot' or event =='Original spec.' or event == 'One' or event == 'All' or event == 'Compare' or event == ' One' or event == ' All' or event == 'Show snr')):
+        if (spec_names[0] == 0 and (event == 'Preview spec.' or event == 'Process selected' or event == 'Show info' or event == 'Preview result' or event == 'Process all' or event == 'Plot' or event =='Original spec.' or event == 'One' or event == 'All' or event == 'Compare' or event == ' One' or event == ' All' or event == 'Show snr' or event == 'See plot' or event == 'Save one' or event == 'Save all')):
             sg.popup('Please, load some spectra!')
             continue
 
