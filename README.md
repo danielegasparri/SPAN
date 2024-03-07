@@ -11,7 +11,7 @@ SPAN is a Python 3.X graphical interface program designed to perform operations 
 The program accepts ASCII and fits binary tables 1D spectra.
 SPAN deals with linear sampled spectra, with wavelength in physical units (A, nm and mu). If you don't have linear sampled spectra and/or with log/ln wavelength scale, SPAN will try to read the spectra, will convert them automatically to linear sampling and will assign a physical wavelength scale. If these operations fails, your spectra will show strange wavelength scale when clicking 'Plot'. If that is the case, you will need to adjust them with other software before load to SPAN.
 
-The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, (E)MILES, GALAXEV and FSPS stellar libraries, and, in general, with the ESO standard for 1D spectra.
+The program has been tested with IRAF-reduced spectra, SDSS spectra, IRTF (also extended version) spectra, SAURON spectra, X-Shooter library spectra, XSL, (E)MILES, GALAXEV and FSPS SSP model spectra, and, in general, with the ESO standard for 1D spectra.
 The software DOES NOT accept ASCII spectra files with fortran scientific notation, like the PHOENIX synthetic stellar spectra. In this case, you will need to open the file and substitute the scientific notation of flux and wavelength "D" with "E".
 
 Currently, SPAN reads only the wavelength and the flux, discarding the (potential) column with uncertainties.
