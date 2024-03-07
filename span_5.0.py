@@ -7,7 +7,7 @@
 
     E-mail: daniele.gasparri@gmail.com
 
-    SPAN is a GUI interface that allow to modify and analyze 1D long-slit reduced spectra.
+    SPAN is a GUI interface that allows to modify and analyze 1D long-slit reduced spectra.
     It is provided "as is" without any warranty whatsoever.
     Permission to use for non-commercial purposes is granted.
     Permission to modify for personal or internal use is granted,
