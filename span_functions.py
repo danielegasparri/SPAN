@@ -1,44 +1,86 @@
-#22/01/2024: updated the functions of kinematics and stellar populations in order to use the new releaze of ppxf (9.1.1) and inserted consistency cheks for the templates wavelength range
+#SPectral ANalysis software (SPAN).
+#Written by Daniele Gasparri#
+#This file contains all the functions in order to run SPAN
 
-#14/01/2024: modified the functions involging the ew measurement in order to fit what spans 4.6 does with the Lick/IDS indices mearurements. Fixed a bug in the error determination of stellar populations with ppxf
+"""
+    Copyright (C) 2018-2024, Daniele Gasparri
 
-#21/12/2023: added the Lick/ids index deteremination and correction for the sigma
+    E-mail: daniele.gasparri@gmail.com
 
-#07/12/2023: added the functions for the plotting window, fits header modifications and match rowa from the text editor
+    SPAN is a GUI interface that allows to modify and analyze 1D long-slit reduced spectra.
+    It is provided "as is" without any warranty whatsoever.
+    Permission to use for non-commercial purposes is granted.
+    Permission to modify for personal or internal use is granted,
+    provided that this copyright and disclaimer are included unchanged
+    at the beginning of the file. All other rights are reserved.
+    In particular, redistribution of the code is not allowed.
 
-#02/12/2023: added the blackbody fitting functions
+"""
 
-#12/11/2023:  add the Montecarlo simulation in order to measure the errors in ppxf stellar populations
+######################################################################################
+#Version histories
 
-#08/11/2023: changed Pandas .at method with .iloc to assign flux values to be averaged and summed
+#22/01/2024:
+#Updated the functions for kinematics and stellar populations to use the new release of ppxf (9.1.1).
+#Inserted consistency checks for the templates' wavelength range.
 
-#03/11/2023: in the read_spec function, added the possibility to correctly load and read 1dfits IRAF style spectra with log lambda
+#14/01/2024:
+#Modified the functions involving the EW measurement to align with what spans 4.6 does with the Lick/IDS indices measurements.
+#Fixed a bug in the error determination of stellar populations with ppxf.
 
-#20/11/2022: added the ppxf routines for the stellar kinematics and populations. Incorporated the crosscorr function of pyasl and the modified version of the emission line templates of ppxf.
+#21/12/2023:
+#Added the Lick/IDS index determination and correction for the sigma.
 
-#16/11/2022: now the read_spec can read also the SDSS spectra-type
+#07/12/2023:
+#Added functions for the plotting window, fits header modifications, and matching rows from the text editor.
 
-#14/11/2022: fixed some bugs
+#02/12/2023:
+#Added the blackbody fitting functions.
 
-#09/22/2022: modified the Cross-correlation function. Now it works.
+#12/11/2023:
+#Added Monte Carlo simulation to measure errors in ppxf stellar populations.
 
-#28/01/2022: Added the calculation of the EW in magnitudes.
+#08/11/2023:
+#Changed the Pandas .at method to .iloc to assign flux values to be averaged and summed.
 
-#19/01/2022: Added the SNR calculation in the EW measurement function
+#03/11/2023:
+#In the read_spec function, added the possibility to correctly load and read 1dfits IRAF style spectra with log lambda.
+
+#20/11/2022:
+#Added ppxf routines for stellar kinematics and populations.
+#Incorporated the crosscorr function of pyasl and the modified version of the emission line templates of ppxf.
+
+#16/11/2022:
+#Now the read_spec can also read SDSS spectra-type.
+
+#14/11/2022:
+#Fixed some bugs.
+
+#09/22/2022:
+#Modified the Cross-correlation function. Now it works.
+
+#28/01/2022:
+#Added the calculation of the EW in magnitudes.
+
+#19/01/2022:
+#Added the SNR calculation in the EW measurement function.
 
 #22/11/2021:
-#Added the degrade function in lambda (FWHM) to degrade the spectrum to a certain FWHM in Angstrom
+#Added the degrade function in lambda (FWHM) to degrade the spectrum to a certain FWHM in Angstrom.
 
-#27/10/2021
-#Fixed the error calculation from the sigma coeff correction (line 510)
-#19/10/2021
-#Fixed a bug in the normalize and average function
+#27/10/2021:
+#Fixed the error calculation from the sigma coeff correction.
 
-#07/11/2020
-#Added resolution function (34) to calculate the resolution of the spectrum considering the sky emission lines (the user must provide the wavelength interval of a well visible sky line to mearure its FWHM)
+#19/10/2021:
+#Fixed a bug in the normalize and average function.
 
-#15/06/2020
-#Changing to the read_spec function for the 1dFit spec, excluding PyAstronomy.pyasl since it is not working with the standalone version of the speim program.
+#07/11/2020:
+#Added resolution function to calculate the resolution of the spectrum considering the sky emission lines (the user must provide the wavelength interval of a well-visible sky line to measure its FWHM).
+
+#15/06/2020:
+#Changed the read_spec function for the 1dFit spec, excluding PyAstronomy.pyasl since it is not working with the standalone version of the program.
+####################################################################################
+
 
 import numpy as np
 import PySimpleGUI as sg   
