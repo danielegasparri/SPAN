@@ -35,7 +35,7 @@ Currently, SPAN reads only the wavelength and the flux, discarding the (potentia
     13) Math (already in your python)
     14) Io (already in your python)
 
- - A screen resolution of at least 1600X900 pix is required, otherwise the graphical panel will be truncated. if your screen vertical resolution is lower than 900 pix, try the span_5.0_low_res_screen.py version, which works with vertical resolutions as low as 768 pix.
+ - A screen resolution of at least 1600X900 pix is required, otherwise the graphical panel will be truncated. If your screen vertical resolution is lower than 900 pix, try the span_5.0_low_res_screen.py version, which works with vertical resolutions as low as 768 pix.
  
 
     
