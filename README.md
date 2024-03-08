@@ -48,7 +48,7 @@ It seems difficult, but don't worry: the button "Create spectra list" in the mai
 In this repository you can find example file lists in the example_files directory. They are:
 1) xshooter_vis_sample_list_spectra.dat, already preloaded in the main application (you just need to click "Load Spectra"), contains 5 spectra of the central regions of nearby galaxies observed with the VIS arm of ESO XShooter spectrograph at resolution of R = 5000. Wavelength units are in nm. Sampling is linear;
 2) NGC5320_bins.dat, ngc5806_bins.dat and ic3392_bins.dat contain the spatial bins of three spiral galaxies observed with the TNG telescope at resolution FWHM = 3.5 A, from 470 to 670 nm. Sampling is logarithmic and wavelengths are in log(A). SPAN will take care of everything: you just need to set "A" in the "Open Spectra" frame before clicking "Load spectra";
-3) irtf_K-M_giants_list_spectra.dat contains a sample of 31 giants K and M stellar spectra of the IRTF library from 800 to 5000 nm. Sampling is logarithmic. Wavelength units are in 'mu', so you need to check the option "mu" in the "Open Spectra" frame befoce clicking "Load spectra".
+3) irtf_K-M_giants_list_spectra.dat contains a sample of 31 giants K and M stellar spectra of the IRTF library from 800 to 5000 nm. Sampling is logarithmic. Wavelength units are in 'mu', so you need to check the option "mu" in the "Open Spectra" frame before clicking "Load spectra".
 
 
 
