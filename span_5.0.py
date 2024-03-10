@@ -280,6 +280,7 @@ def save_settings(filename, keys, events, values):
             'pedestal_to_add': values['pedestal_to_add'],
             'multiply': values['multiply'],
             'multiply_factor': values['multiply_factor'],
+            'derivatives' : values['derivatives'],
             'bb_fitting': values['bb_fitting'],
             'xcorr': values['xcorr'],
             'sigma_measurement': values['sigma_measurement'],
@@ -434,15 +435,15 @@ layout = [
             [sg.Button('Load spectra', size=(13, 2), font = ('Helvetica', 11, 'bold'),button_color=('black','light green')), sg.Push(), sg.Button('Plot',button_color=('black','light gray'), size = (8,1)), sg.Push(), sg.Button('Quick start',button_color=('black','orange'))],
 
             #Load the listbox where the spectra loaded will appear
-            [sg.Text(' ', font = ('Helvetica',3))]], font=("Helvetica", 14, 'bold'), title_color = 'orange'), sg.Listbox(values = listbox1, size=(46, 10), key='-LIST-', horizontal_scroll=True),
+            [sg.Text(' ', font = ('Helvetica',3))]], font=("Helvetica", 14, 'bold'), title_color = 'orange'), sg.Listbox(values = listbox1, size=(47, 10), key='-LIST-', horizontal_scroll=True),
 
             #Utility frame
             sg.Frame('Utilities', [
             [sg.Checkbox('HDR', font = ('Helvetica', 10, 'bold'), key = 'show_hdr',tooltip='Show fits header'), sg.Checkbox('Step', font = ('Helvetica', 10, 'bold'), key = 'show_step',tooltip='Show spectrum wavelength step'), sg.Checkbox('Res.:', font = ('Helvetica', 10, 'bold'), key = 'show_res',tooltip='Show resolution, by fitting a sky emission line within the wavelength 1(W1) and wavelength 2(W2) values'),sg.Text('W1'), sg.InputText('550', size = (4,1), key = 'lambda_res_left'), sg.Text('W2'), sg.InputText('565', size = (4,1), key = 'lambda_res_right')],
             [ sg.Checkbox('Convert spectrum to:', font = ('Helvetica', 10, 'bold'), key = 'convert_spec',tooltip='Convert one or all the spectra from fits to ASCII and viceversa'), sg.Radio('Text', "RADIOCONV", default = True, key = 'convert_to_txt'), sg.Radio('FITS', "RADIOCONV", key = 'convert_to_fits')],
             [sg.Checkbox('Compare with: ', font = ('Helvetica', 10, 'bold'), key = 'compare_spec',tooltip='Compare the selected spectrum with any other loaded spectrum'), sg.InputText('Spec.', size = (13,1), key = 'spec_to_compare'), sg.FileBrowse(tooltip='Load the 1D spectrum (ASCII or fits)to use as comparison')],
-            [sg.Checkbox('Convert Flux', font = ('Helvetica', 10, 'bold'), key = 'convert_flux',tooltip='Convert the flux from Jansky to F_lambda and viceversa'), sg.Radio('Jy-->F_nu', "FLUX", default = True, key = 'convert_to_fnu'), sg.Radio('Jy-->F_l', "FLUX", key = 'convert_to_fl'), sg.Push(),sg.Button('See plot',button_color=('black','light gray'))],
-            [sg.Checkbox('S/N:', font = ('Helvetica', 10, 'bold'), key = 'show_snr',tooltip='Show the S/N of the selected spectrum centered on an user defined wavelength(W)'), sg.Text(' W.'), sg.InputText('609', size = (4,1), key = 'wave_snr'), sg.Text('+/-'), sg.InputText(3, size = (3,1), key = 'delta_wave_snr'), sg.Push(), sg.Button('Save one',button_color=('black','light gray')), sg.Button('Save all',button_color=('black','light gray'))]  ], font=("Helvetica", 12, 'bold')),
+            [sg.Checkbox('Convert Flux', font = ('Helvetica', 10, 'bold'), key = 'convert_flux',tooltip='Convert the flux from Jansky to F_lambda and viceversa'), sg.Radio('Jy-->F_nu', "FLUX", default = True, key = 'convert_to_fnu'), sg.Radio('Jy-->F_l', "FLUX", key = 'convert_to_fl'), sg.Push(),sg.Button('See plot',button_color=('black','light gray'), font = ('Helvetica', 10), size = (8,1))],
+            [sg.Checkbox('S/N:', font = ('Helvetica', 10, 'bold'), key = 'show_snr',tooltip='Show the S/N of the selected spectrum centered on an user defined wavelength(W)'), sg.Text(' W.'), sg.InputText('609', size = (4,1), key = 'wave_snr'), sg.Text('+/-'), sg.InputText(3, size = (3,1), key = 'delta_wave_snr'), sg.Push(), sg.Button('Save one',button_color=('black','light gray'), font = ('Helvetica', 10), size = (8,1)), sg.Button('Save all',button_color=('black','light gray'), font = ('Helvetica', 10), size = (9,1))]  ], font=("Helvetica", 12, 'bold')),
 
             #Buttons to perform the utility actions
             sg.Frame('Utility Actions',[
@@ -457,45 +458,47 @@ layout = [
             #middle frame: operations on the spectra
             #Spectra pre-processing
             [sg.Frame('Spectra pre-processing', [
-            [sg.Checkbox('Cropping', key ='cropping', font = ('Helvetica', 10, 'bold'), tooltip='Crop the spectrum to a user defined wavelength range'), sg.Text('Lower wave'), sg.InputText(480, key = 'cropping_low_wave', size = (5,1)), sg.Text('Upper wave'), sg.InputText(550, key = 'cropping_high_wave', size = (5,1))],
+            [sg.Checkbox('Cropping', key ='cropping', font = ('Helvetica', 11, 'bold'), tooltip='Crop the spectrum to a user defined wavelength range'), sg.Text('Lower wave'), sg.InputText(480, key = 'cropping_low_wave', size = (5,1)), sg.Text('Upper wave'), sg.InputText(550, key = 'cropping_high_wave', size = (5,1))],
 
-            [sg.Checkbox('Dynamic cleaning', font = ('Helvetica', 10, 'bold'), key = 'sigma_clip',tooltip='Perform sigma clipping to erase spikes'), sg.Push(), sg.Button('Clean parameters',button_color= ('black','light blue'), size = (22,1))],
+            [sg.Checkbox('Dynamic cleaning', font = ('Helvetica', 11, 'bold'), key = 'sigma_clip',tooltip='Perform sigma clipping to erase spikes'), sg.Push(), sg.Button('Clean parameters',button_color= ('black','light blue'), size = (22,1))],
 
-            [sg.Checkbox('Wavelet cleaning', font = ('Helvetica', 10, 'bold'), key = 'wavelet_cleaning',tooltip='Perform wavelet cleaning of the spectrum'), sg.Text('Sigma:'),sg.InputText(0.02, key = 'sigma_wavelets', size = (4,1)), sg.Text('Wavelet layers:'), sg.InputText(3, key = 'wavelets_layers', size = (3,1))],
+            [sg.Checkbox('Wavelet cleaning', font = ('Helvetica', 11, 'bold'), key = 'wavelet_cleaning',tooltip='Perform wavelet cleaning of the spectrum'), sg.Text('Sigma:'),sg.InputText(0.02, key = 'sigma_wavelets', size = (5,1)), sg.Text('N. layers:'), sg.InputText(3, key = 'wavelets_layers', size = (3,1))],
 
-            [sg.Checkbox('Filtering and denoising', font = ('Helvetica', 10, 'bold'), key = 'filter_denoise',tooltip='Filters to smooth the spectrum'), sg.Push(), sg.Button('Denoise parameters',button_color= ('black','light blue'), size = (22,1))],
+            [sg.Checkbox('Filtering and denoising', font = ('Helvetica', 11, 'bold'), key = 'filter_denoise',tooltip='Filters to smooth the spectrum'), sg.Push(), sg.Button('Denoise parameters',button_color= ('black','light blue'), size = (22,1))],
 
-            [sg.Checkbox('Doppler correction', font = ('Helvetica', 10, 'bold'), key = 'dopcor',tooltip='Doppler correction of spectrum, from a velocity list file or from a fixed radial velocity value'), sg.Push(), sg.Button('Dopcor parameters',button_color= ('black','light blue'), size = (22,1))],
+            [sg.Checkbox('Doppler correction', font = ('Helvetica', 11, 'bold'), key = 'dopcor',tooltip='Doppler correction of spectrum, from a velocity list file or from a fixed radial velocity value'), sg.Push(), sg.Button('Dopcor parameters',button_color= ('black','light blue'), size = (22,1))],
 
-            [sg.Checkbox('Heliocentric correction', font = ('Helvetica', 10, 'bold'), key = 'helio_corr',tooltip='Heliocentric correction, from a formatted file or by inserting the location, time and object coordinates (RA and Dec) manually'), sg.Push(), sg.Button('Heliocor parameters',button_color= ('black','light blue'), size = (22,1))],
+            [sg.Checkbox('Heliocentric correction', font = ('Helvetica', 11, 'bold'), key = 'helio_corr',tooltip='Heliocentric correction, from a formatted file or by inserting the location, time and object coordinates (RA and Dec) manually'), sg.Push(), sg.Button('Heliocor parameters',button_color= ('black','light blue'), size = (22,1))],
 
             ], font=("Helvetica", 12, 'bold'), title_color = 'lightgreen'),
 
             #2) spectra processing
             sg.Frame('Spectra processing', [
-            [sg.Checkbox('Rebin', font = ('Helvetica', 10, 'bold'), key = 'rebin',tooltip='Rebinning the spectrum, to a linear wavelength step (nm) or to a linear sigma step (km/s)'), sg.Radio('pix lin.', "RADIO1", default=True, key = 'rebin_pix_lin'), sg.InputText(0.02, size = (4,1), key = 'rebin_step_pix'), sg.Radio('sigma lin.', "RADIO1", key = 'rebin_sigma_lin'), sg.InputText(0, size = (3,1), key = 'rebin_step_sigma')],
-            [sg.Checkbox('Degrade resolution', font = ('Helvetica', 10, 'bold'), key = 'degrade_resolution',tooltip='Degrade resolution to a user defined value'), sg.Push(), sg.Button('Degrade parameters',button_color= ('black','light blue'), size = (20,1))],
+            [sg.Checkbox('Rebin', font = ('Helvetica', 11, 'bold'), key = 'rebin',tooltip='Rebinning the spectrum, to a linear wavelength step (nm) or to a linear sigma step (km/s)'), sg.Radio('Pix lin.', "RADIO1", default=True, key = 'rebin_pix_lin'), sg.InputText(0.02, size = (5,1), key = 'rebin_step_pix'), sg.Radio('Sigma lin.', "RADIO1", key = 'rebin_sigma_lin'), sg.InputText(0, size = (4,1), key = 'rebin_step_sigma')],
 
-            [sg.Checkbox('Normalise spectrum to:', font = ('Helvetica', 10, 'bold'), key = 'norm_spec',tooltip='Normalise the flux to a user defined wavelength'), sg.InputText(500, size = (6,1), key = 'norm_wave'), sg.Text('nm')],
+            [sg.Checkbox('Degrade resolution', font = ('Helvetica', 11, 'bold'), key = 'degrade_resolution',tooltip='Degrade resolution to a user defined value'), sg.Push(), sg.Button('Degrade parameters',button_color= ('black','light blue'), size = (20,1))],
 
-            [sg.Checkbox('Sigma broadening', font = ('Helvetica', 10, 'bold'), key = 'broadening_spec',tooltip='Broad the spectrum by adding a user defined sigma (km/s). This will NOT be the total sigma broadening of your spectrum!'), sg.Text('Add sigma (km/s): ', font = ('Helvetica', 10)), sg.InputText(0, size = (4,1), key = 'sigma_to_add')],
-            [sg.Checkbox('Add noise', font = ('Helvetica', 10, 'bold'), key = 'add_noise',tooltip='Adding poissonian noise to the spectrum'), sg.Text('Signal to Noise (S/N) to add:'), sg.InputText(10, size = (5,1), key = 'noise_to_add')],
+            [sg.Checkbox('Normalise spectrum to:', font = ('Helvetica', 11, 'bold'), key = 'norm_spec',tooltip='Normalise the flux to a user defined wavelength'), sg.InputText(500, size = (6,1), key = 'norm_wave'), sg.Text('nm')],
 
-            [sg.Checkbox('Continuum modelling', font = ('Helvetica', 10, 'bold'), key = 'cont_sub',tooltip='Perform the continuum estimation to subtract or divide to the spectrum'), sg.Push(), sg.Button('Continuum parameters',button_color= ('black','light blue'), size = (20,1))],
-                [sg.Text('', font = ('Helvetica', 1))],
+            [sg.Checkbox('Sigma broadening', font = ('Helvetica', 11, 'bold'), key = 'broadening_spec',tooltip='Broad the spectrum by adding a user defined sigma (km/s). This will NOT be the total sigma broadening of your spectrum!'), sg.Text('Add sigma (km/s): ', font = ('Helvetica', 10)), sg.InputText(0, size = (5,1), key = 'sigma_to_add')],
+
+            [sg.Checkbox('Add noise', font = ('Helvetica', 11, 'bold'), key = 'add_noise',tooltip='Adding poissonian noise to the spectrum'), sg.Text('Signal to Noise (S/N) to add:'), sg.InputText(10, size = (5,1), key = 'noise_to_add')],
+
+            [sg.Checkbox('Continuum model', font = ('Helvetica', 11, 'bold'), key = 'cont_sub',tooltip='Perform the continuum estimation to subtract or divide to the spectrum'), sg.Push(), sg.Button('Continuum parameters',button_color= ('black','light blue'), size = (20,1))],
+                #[sg.Text('', font = ('Helvetica', 1))],
 
             ], font=("Helvetica", 12, 'bold'),title_color = 'lightgreen'),
 
             #3) spectra math
             sg.Frame('Spectra math', [
             #[sg.Text('', font = ('Helvetica',1))],
-            [sg.Radio('Average all', "RADIOMATH", key = 'avg_all',tooltip='Average all the loaded spectra'), sg.Radio('Norm. and average all', "RADIOMATH", key = 'norm_avg_all',tooltip='First normalise, then average all the loaded spectra'), sg.Radio('Nothing', "RADIOMATH", default = True, key = 'none',tooltip='Select this option if you DO NOT want to combine the spectra')],
-            [sg.Radio('Sum all', "RADIOMATH", key = 'sum_all',tooltip='Sum all the loaded spectra'), sg.Radio('Norm. and sum all', "RADIOMATH", key = 'norm_sum_all',tooltip='First normalise, then sum all the loaded spectra'), sg.Checkbox('Use for spec. an.', text_color = 'yellow', key = 'use_for_spec_an',tooltip='Select this to use the combined spectrum for the spectral analysis')],
-            [sg.Checkbox('Subtract normalised average', font = ('Helvetica', 10, 'bold'), key = 'subtract_norm_avg',tooltip='Normalise and subtract to the selected spectrum the normalised average of all the spectra')],
-            [sg.Checkbox('Subtract norm. spec.', font = ('Helvetica', 10, 'bold'), key = 'subtract_norm_spec',tooltip='Normalise and subtract to the selected spectrum a user selected spectrum'), sg.InputText('Spectrum to subtract', size = (18,1), key = 'spec_to_sobtract'), sg.FileBrowse(tooltip='Load a spectrum (ASCII or fits) to be normalised and subtracted')],
-            [sg.Checkbox('Add pedestal', font = ('Helvetica', 10, 'bold'), key = 'add_pedestal',tooltip='Simply add a constant value to the spectrum'), sg.InputText(0, size = (20,1), key = 'pedestal_to_add')],
-            [sg.Checkbox('Multiply by a constant', font = ('Helvetica', 10, 'bold'), key = 'multiply',tooltip='Multiply the spectrum by a constant'), sg.InputText(1 , size = (20,1), key = 'multiply_factor')],
-            [sg.Text('', font = ('Helvetica',1))],
+            [sg.Radio('Average all', "RADIOMATH", key = 'avg_all',tooltip='Average all the loaded spectra'), sg.Radio('Norm. and average all', "RADIOMATH", key = 'norm_avg_all',tooltip='First normalise, then average all the loaded spectra'), sg.Radio('Nothing', "RADIOMATH", default = True, key = 'none',tooltip='Select this option if you DO NOT want to combine the spectra', font = ('Helvetica', 11, 'bold'))],
+            [sg.Radio('Sum all', "RADIOMATH", key = 'sum_all',tooltip='Sum all the loaded spectra'), sg.Radio('Norm. and sum all', "RADIOMATH", key = 'norm_sum_all',tooltip='First normalise, then sum all the loaded spectra'), sg.Checkbox('Use for spec. an.', text_color = 'yellow', key = 'use_for_spec_an',tooltip='Select this to use the combined spectrum for the spectral analysis', font = ('Helvetica', 11, 'bold'))],
+            [sg.Checkbox('Subtract normalised average', font = ('Helvetica', 11, 'bold'), key = 'subtract_norm_avg',tooltip='Normalise and subtract to the selected spectrum the normalised average of all the spectra')],
+            [sg.Checkbox('Sub. norm. spec.', font = ('Helvetica', 11, 'bold'), key = 'subtract_norm_spec',tooltip='Normalise and subtract to the selected spectrum a user selected spectrum'), sg.InputText('Spectrum to subtract', size = (19,1), key = 'spec_to_sobtract'), sg.FileBrowse(tooltip='Load a spectrum (ASCII or fits) to be normalised and subtracted')],
+            [sg.Checkbox('Add constant', font = ('Helvetica', 11, 'bold'), key = 'add_pedestal',tooltip='Simply add a constant value to the spectrum'), sg.InputText(0, size = (7,1), key = 'pedestal_to_add'), sg.Checkbox('Multiply by:', font = ('Helvetica', 11, 'bold'), key = 'multiply',tooltip='Multiply the spectrum by a constant'), sg.InputText(1 , size = (7,1), key = 'multiply_factor')],
+            [sg.Checkbox('Calculate first and second derivatives', default = False, key = 'derivatives', font = ('Helvetica', 11, 'bold'),tooltip='Calculate the derivative of the spectra')],
+            #[sg.Text('', font = ('Helvetica',1))],
             ],font=("Helvetica", 12, 'bold')),
 
             #4) Buttons to perform actions on the spectra
@@ -505,7 +508,7 @@ layout = [
             [sg.Button('Original spec.',button_color=('black','light gray'), size = (11,1),tooltip='Plot the original spectrum')],
             [sg.Button('Preview spec.',button_color=('black','light gray'), size = (11,2), font=("Helvetica", 10, 'bold'),tooltip='Plot the processed spectrum')],
             [sg.Text('')],
-            [sg.Text('')],
+            [sg.Text('', font = ('Helvetica', 5, 'bold'))],
             #[sg.Text('', font = ("Helvetica",2))],
             ],font=("Helvetica", 10, 'bold'))],
 
@@ -565,16 +568,17 @@ layout = [
             [sg.HorizontalSeparator()],
             [sg.Button('Compute!',button_color=('black','light grey'), size = (12,1))],
             [sg.Button('Correct!',button_color=('black','light grey'), size = (12,1))],
-            ],font=("Helvetica", 9, 'bold')),
+            ],font=("Helvetica", 10, 'bold')),
 
             #COMMENT THE FOLLOWING THREE LINES TO HAVE THE EXTERNAL OUTPUT
             sg.Frame('Output', [
-            [sg.Output(size=(81, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
+            [sg.Output(size=(82, 17), key='-OUTPUT-' , font=('Helvetica', 11))],
             ] ,font=("Helvetica", 12, 'bold')),
 
 
             ],
 
+            #[sg.HorizontalSeparator()],
             #General buttons at the end of the panel
             [sg.Button('Process selected', button_color=('white','orange'), size=(15, 2),tooltip='Process the selected spectrum by performing all the enabled tasks'), sg.Button('Process all', button_color=('white','red'), size=(15, 2), tooltip='Process all the loaded spectra by performing all the enabled tasks'), sg.Checkbox('Save intermediate files, if any', default = True, text_color = 'lightgreen', key = 'save_intermediate_files', tooltip='Check this if you want to save all the spectra for any of the tasks selected', font = ('Helvetica', 10, 'bold')), sg.Checkbox('Save plots', default = False, text_color='yellow', key = 'save_plots', tooltip='To save all the plots generated by the Spectral Analysis tasks activated and the Process All method', font = ("Helvetica", 10, 'bold')), sg.Push(),sg.Button('Text editor', tooltip='Stand alone simple text editor',button_color= ('black','light blue')),sg.Button('FITS header editor', tooltip='Stand alone FITS header editor',button_color= ('black','light blue')), sg.Button('Plot data', tooltip='Stand alone data plotter. ASCII files with spaced rows',button_color= ('black','light blue')), sg.Button('2D spec extraction', tooltip='Stand alone program to extracd 1d spectra from 2d fits',button_color= ('black','light blue')), sg.Push(), sg.Exit(size=(15, 2),tooltip='See you soon!')]
 
@@ -1041,6 +1045,7 @@ while True:
         window ['subtract_norm_spec']. Update (value = False)
         window ['add_pedestal']. Update (value = False)
         window ['multiply']. Update (value = False)
+        window ['derivatives']. Update (value = False)
 
         window ['bb_fitting']. Update (value = False)
         window ['xcorr']. Update (value = False)
@@ -1600,7 +1605,8 @@ while True:
             sg.popup('Multiply value not valid!')
             continue
 
-
+    #11) derivatives
+    derivatives = values['derivatives']
 
 
 
@@ -3917,6 +3923,58 @@ while True:
                 np.savetxt(file_multiplied, np.column_stack([wavelength, flux]), header="wavelength \t flux")
                 print ('File saved: ', file_multiplied)
                 print('')
+
+
+        # 5) derivatives
+        if (derivatives == True):
+            task_done = 1
+            task_spec = 1
+            print ('*** First and second derivatives ***')
+            print ('WARNING: these are NOT used for spectral analysis tasks')
+
+            try:
+                first_derivative = np.gradient(flux, wavelength)
+                second_derivative = np.gradient(first_derivative, wavelength)
+
+                #plotting
+                plt.figure(figsize=(12, 8))
+
+                plt.subplot(3, 1, 1)
+                plt.plot(wavelength, flux, label='Original spectrum')
+                plt.title('Spectra derivatives')
+                plt.xlabel('Wavelength (nm)')
+                plt.ylabel('Flux')
+                plt.legend()
+
+                plt.subplot(3, 1, 2)
+                plt.plot(wavelength, first_derivative, label='First derivative')
+                plt.title('First derivative')
+                plt.xlabel('Wavelength (nm)')
+                plt.ylabel('Flux')
+                plt.legend()
+
+                plt.subplot(3, 1, 3)
+                plt.plot(wavelength, second_derivative, label='Second derivative')
+                plt.title('Second derivative')
+                plt.xlabel('Wavelength (nm)')
+                plt.ylabel('Flux')
+                plt.legend()
+
+                plt.tight_layout()
+                plt.show()
+
+                if event == 'Process selected':
+                    #derivative_suffix = str(int(round(multiply_constant)))
+                    file_first_derivative = result_spec+'first_deriv_'+ prev_spec_nopath + '.dat'
+                    file_second_derivative = result_spec+'second_deriv_'+ prev_spec_nopath + '.dat'
+                    np.savetxt(file_first_derivative, np.column_stack([wavelength, first_derivative]), header="wavelength \t flux")
+                    np.savetxt(file_second_derivative, np.column_stack([wavelength, second_derivative]), header="wavelength \t flux")
+                    print ('Derivative spectra saved: ', file_first_derivative, file_second_derivative)
+                    print('')
+            except Exception:
+                print ('Cannot compute the derivatives. Skypping...')
+
+
 
         #plotting. Not for the average and sum methods, that is if do_nothing == True
         if (do_nothing == True and event == 'Preview spec.'):
@@ -6246,6 +6304,27 @@ while True:
                     print('')
 
 
+            # 5) derivatives
+            if (derivatives == True):
+                task_done2 = 1
+                task_spec2 = 1
+                print ('*** First and second derivatives ***')
+                print ('WARNING: these are NOT used for spectral analysis tasks')
+
+                try:
+                    first_derivative = np.gradient(flux, wavelength)
+                    second_derivative = np.gradient(first_derivative, wavelength)
+
+                    file_first_derivative = result_spec+'first_deriv_'+ spec_names_nopath[i] + '.dat'
+                    file_second_derivative = result_spec+'second_deriv_'+ spec_names_nopath[i] + '.dat'
+                    np.savetxt(file_first_derivative, np.column_stack([wavelength, first_derivative]), header="wavelength \t flux")
+                    np.savetxt(file_second_derivative, np.column_stack([wavelength, second_derivative]), header="wavelength \t flux")
+                    print ('Derivative spectra saved: ', file_first_derivative, file_second_derivative)
+                    print('')
+
+                except Exception:
+                    print ('Cannot compute the derivatives. Skypping...')
+
 
 
 
@@ -7822,6 +7901,7 @@ while True:
             window['pedestal_to_add'].update(value=values['pedestal_to_add'],)
             window['multiply'].update(value=values['multiply'],)
             window['multiply_factor'].update(value=values['multiply_factor'],)
+            window['derivatives'].update(value=values['derivatives'],)
             window['bb_fitting'].update(value=values['bb_fitting'],)
             window['xcorr'].update(value=values['xcorr'],)
             window['sigma_measurement'].update(value=values['sigma_measurement'],)
@@ -8057,6 +8137,7 @@ while True:
         window['pedestal_to_add'].update(value=values['pedestal_to_add'],)
         window['multiply'].update(value=values['multiply'],)
         window['multiply_factor'].update(value=values['multiply_factor'],)
+        window['derivatives'].update(value=values['derivatives'],)
         window['bb_fitting'].update(value=values['bb_fitting'],)
         window['xcorr'].update(value=values['xcorr'],)
         window['sigma_measurement'].update(value=values['sigma_measurement'],)
