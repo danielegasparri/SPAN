@@ -435,7 +435,7 @@ layout = [
             [sg.Button('Load spectra', size=(13, 2), font = ('Helvetica', 11, 'bold'),button_color=('black','light green')), sg.Push(), sg.Button('Plot',button_color=('black','light gray'), size = (8,1)), sg.Push(), sg.Button('Quick start',button_color=('black','orange'))],
             ], font=("Helvetica", 14, 'bold'), title_color = 'orange'),
             #Load the listbox where the spectra loaded will appear
-            sg.Listbox(values = listbox1, size=(45, 9), key='-LIST-', horizontal_scroll=True),
+            sg.Listbox(values = listbox1, size=(45, 8), key='-LIST-', horizontal_scroll=True),
 
             #Utility frame
             sg.Frame('Utilities', [
@@ -453,7 +453,7 @@ layout = [
             [sg.Button(' One',button_color=('black','light gray'), size = (4,1)), sg.Button(' All',button_color=('black','light gray'), size = (4,1))],
             [sg.Button('Show snr',button_color=('black','light gray'), size = (11,1))],
             ],font=("Helvetica", 9, 'bold'))],
-            [sg.HorizontalSeparator()],
+            #[sg.HorizontalSeparator()],
 
             #middle frame: operations on the spectra
             #Spectra pre-processing
@@ -512,7 +512,7 @@ layout = [
             ],font=("Helvetica", 10, 'bold'))],
 
             #[sg.Text('', font = ("Helvetica", 1))],
-            [sg.HorizontalSeparator()],
+            #[sg.HorizontalSeparator()],
             #[sg.Text('', font = ("Helvetica", 1))],
             #Spectral analysis frame
             [sg.Frame('Spectral analysis', [
